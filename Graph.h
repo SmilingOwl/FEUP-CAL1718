@@ -20,8 +20,8 @@ class Vertex {
 	T info;                // contents
 	vector<Edge<T> > adj;  // list of outgoing edges
 	bool visited;          // auxiliary field used by dfs and bfs
-	int indegree;          // auxiliary field used by topsort
 	bool processing;       // auxiliary field used by isDAG
+	int indegree;          // auxiliary field used by topsort
 
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdgeTo(Vertex<T> *d);
@@ -88,29 +88,32 @@ Vertex<T> * Graph<T>::findVertex(const T &in) const {
 /****************** 1a) addVertex ********************/
 
 /*
- *  Adds a vertex with a given content/info (in) to a graph (this).
+ *  Adds a vertex with a given content or info (in) to a graph (this).
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
 template <class T>
 bool Graph<T>::addVertex(const T &in) {
-	// TODO (4 lines)
-	// HINT: use the findVertex function to check if a vertex already exists
-	return false;
+	if ( findVertex(in) != NULL)
+		return false;
+	vertexSet.push_back(new Vertex<T>(in));
+	return true;
 }
 
 /****************** 1b) addEdge ********************/
 
 /*
- * Adds an edge to a graph (this), given the contents of the source (sourc) and
- * destination (dest) vertices and the edge weight (w).
+ * Adds an edge to a graph (this), given the contents of the source and
+ * destination vertices and the edge weight (w).
  * Returns true if successful, and false if the source or destination vertex does not exist.
  */
 template <class T>
 bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
-	// TODO (6 lines)
-	// HINT: use findVertex to obtain the actual vertices
-	// HINT: use the next function to actually add the edge
-	return false;
+	auto v1 = findVertex(sourc);
+	auto v2 = findVertex(dest);
+	if (v1 == NULL || v2 == NULL)
+		return false;
+	v1->addEdge(v2,w);
+	return true;
 }
 
 /*
@@ -119,7 +122,7 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
  */
 template <class T>
 void Vertex<T>::addEdge(Vertex<T> *d, double w) {
-	// TODO (1 line)
+	adj.push_back(Edge<T>(d, w));
 }
 
 
@@ -132,10 +135,11 @@ void Vertex<T>::addEdge(Vertex<T> *d, double w) {
  */
 template <class T>
 bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
-	// TODO (5 lines)
-	// HINT: Use "findVertex" to obtain the actual vertices.
-	// HINT: Use the next function to actually remove the edge.
-	return false;
+	auto v1 = findVertex(sourc);
+	auto v2 = findVertex(dest);
+	if (v1 == NULL || v2 == NULL)
+		return false;
+	return v1->removeEdgeTo(v2);
 }
 
 /*
@@ -145,8 +149,11 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
  */
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
-	// TODO (6 lines)
-	// HINT: use an iterator to scan the "adj" vector and then erase the edge.
+	for (auto it = adj.begin(); it != adj.end(); it++)
+		if (it->dest  == d) {
+			adj.erase(it);
+			return true;
+		}
 	return false;
 }
 
@@ -160,9 +167,15 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
  */
 template <class T>
 bool Graph<T>::removeVertex(const T &in) {
-	// TODO (10 lines)
-	// HINT: use an iterator to scan the "vertexSet" vector and then erase the vertex.
-	// HINT: take advantage of "removeEdgeTo" to remove incoming edges.
+	for (auto it = vertexSet.begin(); it != vertexSet.end(); it++)
+		if ((*it)->info  == in) {
+			auto v = *it;
+			vertexSet.erase(it);
+			for (auto u : vertexSet)
+				u->removeEdgeTo(v);
+			delete v;
+			return true;
+		}
 	return false;
 }
 
@@ -176,18 +189,28 @@ bool Graph<T>::removeVertex(const T &in) {
  */
 template <class T>
 vector<T> Graph<T>::dfs() const {
-	// TODO (7 lines)
 	vector<T> res;
+	for (auto v : vertexSet)
+		v->visited = false;
+	for (auto v : vertexSet)
+	    if (! v->visited)
+	    	dfsVisit(v, res);
 	return res;
 }
 
 /*
- * Auxiliary function that visits a vertex (v) and its adjacent not yet visited, recursively.
+ * Auxiliary function that visits a vertex (v) and its adjacent, recursively.
  * Updates a parameter with the list of visited node contents.
  */
 template <class T>
 void Graph<T>::dfsVisit(Vertex<T> *v, vector<T> & res) const {
-	// TODO (7 lines)
+	v->visited = true;
+	res.push_back(v->info);
+	for (auto & e : v->adj) {
+		auto w = e.dest;
+	    if ( ! w->visited)
+	    	dfsVisit(w, res);
+	}
 }
 
 /****************** 2b) bfs ********************/
@@ -200,10 +223,27 @@ void Graph<T>::dfsVisit(Vertex<T> *v, vector<T> & res) const {
  */
 template <class T>
 vector<T> Graph<T>::bfs(const T & source) const {
-	// TODO (22 lines)
-	// HINT: Use the flag "visited" to mark newly discovered vertices .
-	// HINT: Use the "queue<>" class to temporarily store the vertices.
 	vector<T> res;
+	auto s = findVertex(source);
+	if (s == NULL)
+		return res;
+	queue<Vertex<T> *> q;
+	for (auto v : vertexSet)
+		v->visited = false;
+	q.push(s);
+	s->visited = true;
+	while (!q.empty()) {
+		auto v = q.front();
+		q.pop();
+		res.push_back(v->info);
+		for (auto & e : v->adj) {
+			auto w = e.dest;
+		    if ( ! w->visited ) {
+				q.push(w);
+				w->visited = true;
+		    }
+		}
+	}
 	return res;
 }
 
@@ -218,28 +258,83 @@ vector<T> Graph<T>::bfs(const T & source) const {
 
 template<class T>
 vector<T> Graph<T>::topsort() const {
-	// TODO (26 lines)
 	vector<T> res;
+
+	for (auto v : vertexSet)
+		v->indegree = 0;
+	for (auto v : vertexSet)
+		for (auto & e : v->adj)
+			e.dest->indegree++;
+
+	queue<Vertex<T>*> q;
+	for (auto v : vertexSet)
+		if (v->indegree == 0)
+			q.push(v);
+
+	while( !q.empty() ) {
+		Vertex<T>* v = q.front();
+		q.pop();
+		res.push_back(v->info);
+		for(auto & e : v->adj) {
+			auto w = e.dest;
+			w->indegree--;
+			if(w->indegree == 0)
+				q.push(w);
+		}
+	}
+
+	if ( res.size() != vertexSet.size() ) {
+		cout << "Ordenacao Impossivel!" << endl;
+		res.clear();
+		return res;
+	}
+
 	return res;
 }
 
-/****************** 3a) maxNewChildren (HOME WORK)  ********************/
+/****************** 3a) maxNewChildren  ********************/
 
 /*
  * Performs a breadth-first search in a graph (this), starting
  * from the vertex with the given source contents (source).
  * During the search, determines the vertex that has a maximum number
  * of new children (adjacent not previously visited), and returns the
- * contents of that vertex (inf) and the number of new children (return value).
+ * contents of that vertex and the number of new children.
  */
 
 template <class T>
 int Graph<T>::maxNewChildren(const T & source, T &inf) const {
-	// TODO (28 lines, mostly reused)
-	return 0;
+	auto s = findVertex(source);
+	if (s == NULL)
+			return 0;
+	queue<Vertex<T> *> q;
+	int maxChildren = 0;
+	inf = s->info;
+	for (auto v : vertexSet)
+		v->visited = false;
+	q.push(s);
+	s->visited = true;
+	while (!q.empty()) {
+		auto v = q.front();
+		q.pop();
+		int nChildren=0;
+		for (auto & e : v->adj) {
+			auto w = e.dest;
+			if ( ! w->visited ) {
+				w->visited = true;
+				q.push(w);
+				nChildren++;
+			}
+		}
+		if (nChildren>maxChildren) {
+			maxChildren = nChildren;
+			inf = v->info;
+		}
+	}
+	return maxChildren;
 }
 
-/****************** 3b) isDAG   (HOME WORK)  ********************/
+/****************** 3a) isDAG  ********************/
 
 /*
  * Performs a depth-first search in a graph (this), to determine if the graph
@@ -251,18 +346,34 @@ int Graph<T>::maxNewChildren(const T & source, T &inf) const {
 
 template <class T>
 bool Graph<T>::isDAG() const {
-	// TODO (9 lines, mostly reused)
-	// HINT: use the auxiliary field "processing" to mark the vertices in the stack.
+	for (auto v : vertexSet) {
+		v->visited = false;
+		v->processing = false;
+	}
+	for (auto v : vertexSet)
+	    if (! v->visited)
+	    	if ( ! dfsIsDAG(v) )
+	    		return false;
 	return true;
 }
 
 /**
- * Auxiliary function that visits a vertex (v) and its adjacent not yet visited, recursively.
+ * Auxiliary function that visits a vertex (v) and its adjacent, recursively.
  * Returns false (not acyclic) if an edge to a vertex in the stack is found.
  */
 template <class T>
 bool Graph<T>::dfsIsDAG(Vertex<T> *v) const {
-	// TODO (12 lines, mostly reused)
+	v->visited = true;
+	v->processing = true;
+	for (auto & e : v->adj) {
+		auto w = e.dest;
+    	if (w->processing)
+    		return false;
+	    if (! w->visited)
+	    	if (! dfsIsDAG(w))
+	    		return false;
+	}
+	v->processing = false;
 	return true;
 }
 
