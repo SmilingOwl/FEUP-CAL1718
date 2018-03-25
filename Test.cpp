@@ -2,245 +2,162 @@
 #include "ide_listener.h"
 #include "xml_listener.h"
 #include "cute_runner.h"
+#include <sstream>
+#include <random>
+#include <time.h>
+#include <chrono>
 #include "Graph.h"
-#include "Person.h"
 
-void createNetwork(Graph<Person> & net1)
+using namespace std;
+
+
+template <typename T1, typename T2>
+basic_ostream<char>& operator<<(basic_ostream<char> & strm, const pair<T1, T2>& kvPair)
 {
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Ines", 18);
-	Person p5("Maria", 24);
-	Person p6("Rui",21);
-	Person p7("Vasco",28);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	net1.addVertex(p5); net1.addVertex(p6); net1.addVertex(p7);
-	net1.addEdge(p1,p2,0);
-	net1.addEdge(p1,p3,0);
-	net1.addEdge(p1,p4,0);
-	net1.addEdge(p2,p5,0);
-	net1.addEdge(p5,p6,0);
-	net1.addEdge(p5,p1,0);
-	net1.addEdge(p3,p6,0);
-	net1.addEdge(p3,p7,0);
-	net1.addEdge(p6,p2,0);
-}
-
-void test_addVertex() {
-	Graph<Person> net1;
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Inês", 18);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	ASSERT_EQUAL(false, net1.addVertex(p2));
-	ASSERT_EQUAL(4, net1.getNumVertex());
-}
-
-void test_removeVertex() {
-	Graph<Person> net1;
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Inês", 18);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	ASSERT_EQUAL(true, net1.removeVertex(p2));
-	ASSERT_EQUAL(false, net1.removeVertex(p2));
-	ASSERT_EQUAL(3, net1.getNumVertex());
-}
-
-void test_addEdge() {
-	Graph<Person> net1;
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Inês", 18);
-	Person p5("Maria", 24);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	ASSERT_EQUAL(true, net1.addEdge(p1,p2,0));
-	ASSERT_EQUAL(true, net1.addEdge(p1,p3,0));
-	ASSERT_EQUAL(true, net1.addEdge(p1,p4,0));
-	ASSERT_EQUAL(false, net1.addEdge(p2,p5,0));
-}
-
-void test_removeEdge() {
-	Graph<Person> net1;
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Inês", 18);
-	Person p5("Maria", 24);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	ASSERT_EQUAL(true, net1.addEdge(p1,p2,0));
-	ASSERT_EQUAL(true, net1.addEdge(p1,p3,0));
-	ASSERT_EQUAL(true, net1.addEdge(p1,p4,0));
-	ASSERT_EQUAL(true, net1.addEdge(p2,p4,0));
-	ASSERT_EQUAL(true, net1.removeEdge(p1,p3));
-	ASSERT_EQUAL(false, net1.removeEdge(p1,p5));
-	ASSERT_EQUAL(false, net1.removeEdge(p2,p3));
+		strm << "(" << kvPair.first << ", " << kvPair.second << ")";
+		return strm;
 }
 
 
-void test_dfs() {
-	Graph<Person> net1;
-	createNetwork(net1);
-	vector<Person> v1 = net1.dfs();
-	string names[] = {"Ana", "Carlos", "Maria", "Rui", "Filipe", "Vasco", "Ines"};
-	for (unsigned i = 0; i < 7; i++)
-		if (i < v1.size())
-			ASSERT_EQUAL(names[i], v1[i].getName());
-		else
-			ASSERT_EQUAL(names[i], "(null)");
+void geneateRandomGridGraph(int n, Graph<pair<int,int>> & g) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(1, n);
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			g.addVertex(make_pair(i,j));
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			for (int di = -1; di <= 1; di++)
+				for (int dj = -1; dj <= 1; dj++)
+					if ((di != 0) != (dj != 0) && i+di >= 0 && i+di < n && j+dj >= 0 && j+dj < n)
+							g.addEdge(make_pair(i,j), make_pair(i+di,j+dj), dis(gen));
 }
 
-void test_bfs() {
-	Graph<Person> net1;
-	createNetwork(net1);
-	vector<Person> v1 = net1.bfs(Person("Ana",19));
-	string names[] = {"Ana", "Carlos", "Filipe", "Ines", "Maria", "Rui", "Vasco"};
-	for (unsigned i = 0; i < 7; i++)
-		if (i < v1.size())
-			ASSERT_EQUAL(names[i], v1[i].getName());
-		else
-			ASSERT_EQUAL(names[i], "(null)");
-}
-
-void test_removeVertex_Again() {
-	Graph<Person> net1;
-	createNetwork(net1);
-	Person p2("Carlos",33);
-	ASSERT_EQUAL(true, net1.removeVertex(p2));
-	vector<Person> v1=net1.dfs();
-	string names[] = {"Ana", "Filipe", "Rui", "Vasco", "Ines", "Maria"};
-	for (unsigned i = 0; i < 6; i++)
-		ASSERT_EQUAL(names[i], v1[i].getName());
-}
-
-void test_removeEdge_Again() {
-	Graph<Person> net1;
-	createNetwork(net1);
-	Person p5("Maria", 24);
-	Person p6("Rui",21);
-	ASSERT_EQUAL(true, net1.removeEdge(p5,p6));
-	vector<Person> v1=net1.dfs();
-	string names[] = {"Ana", "Carlos", "Maria", "Filipe", "Rui", "Vasco", "Ines"};
-	for (unsigned i = 0; i < 7; i++)
-		ASSERT_EQUAL(names[i], v1[i].getName());
+void test_performance_dijkstra() {
+	for (int n = 10; n <= 100; n += 10) {
+		Graph< pair<int,int> > g;
+		cout << "Dijkstra generating grid " << n << " x " << n << " ..." << endl;
+		geneateRandomGridGraph(n, g);
+		cout << "Dijkstra processing grid " << n << " x " << n << " ..." << endl;
+		auto start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				g.dijkstraShortestPath(make_pair(i,j));
+		auto finish = std::chrono::high_resolution_clock::now();
+		auto elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
+		cout << "Dijkstra processing grid " << n << " x " << n << " average time (micro-seconds)=" << (elapsed / (n*n)) << endl;
+	}
 }
 
 
-void test_maxNewChildren() {
-	Graph<Person> net1;
-	Person p1("Ana",19);
-	Person p2("Carlos",33);
-	Person p3("Filipe", 20);
-	Person p4("Inês", 18);
-	Person p5("Maria", 24);
-	Person p6("Rui",21);
-	Person p7("Vasco",28);
-	net1.addVertex(p1); net1.addVertex(p2);
-	net1.addVertex(p3); net1.addVertex(p4);
-	net1.addVertex(p5); net1.addVertex(p6); net1.addVertex(p7);
-	net1.addEdge(p1,p2,0);
-	net1.addEdge(p1,p3,0);
-	net1.addEdge(p2,p5,0);
-	net1.addEdge(p3,p4,0);
-	net1.addEdge(p5,p6,0);
-	net1.addEdge(p5,p1,0);
-	net1.addEdge(p3,p6,0);
-	net1.addEdge(p3,p7,0);
-	net1.addEdge(p3,p2,0);
-	Person pt;
-	ASSERT_EQUAL(3, net1.maxNewChildren(Person("Ana",19), pt));
-	ASSERT_EQUAL("Filipe", pt.getName());
-}
-
-
-
-void test_isDAG() {
+Graph<int> CreateTestGraph() {
 	Graph<int> myGraph;
 
-	myGraph.addVertex(0);myGraph.addVertex(1); myGraph.addVertex(2);
-	myGraph.addVertex(3); myGraph.addVertex(4); myGraph.addVertex(5);
-	myGraph.addEdge(1, 2, 0);
-	myGraph.addEdge(2, 5, 0);
-	myGraph.addEdge(5, 4, 0);
-	myGraph.addEdge(4, 1, 0);
-	myGraph.addEdge(5, 1, 0);
-	myGraph.addEdge(2, 3, 0);
-	myGraph.addEdge(3, 1, 0);
-	myGraph.addEdge(0, 4, 0);
+	for(int i = 1; i <= 7; i++)
+		myGraph.addVertex(i);
 
-	ASSERT_EQUAL(false, myGraph.isDAG());
+	myGraph.addEdge(1, 2, 2);
+	myGraph.addEdge(1, 4, 7);
+	myGraph.addEdge(2, 4, 3);
+	myGraph.addEdge(2, 5, 5);
+	myGraph.addEdge(3, 1, 2);
+	myGraph.addEdge(3, 6, 5);
+	myGraph.addEdge(4, 3, 1);
+	myGraph.addEdge(4, 5, 1);
+	myGraph.addEdge(4, 6, 6);
+	myGraph.addEdge(4, 7, 4);
+	myGraph.addEdge(5, 7, 2);
+	myGraph.addEdge(6, 4, 3);
+	myGraph.addEdge(7, 6, 4);
 
-	myGraph.removeEdge(4, 1);
-	myGraph.removeEdge(5, 1);
-	myGraph.removeEdge(2, 3);
-
-	ASSERT_EQUAL(true, myGraph.isDAG());
-
-	myGraph.addEdge(1, 4, 0);
-
-	ASSERT_EQUAL(true, myGraph.isDAG());
+	return myGraph;
 }
 
-
-void test_topsort() {
-	Graph<int> myGraph;
-	myGraph.addVertex(1); myGraph.addVertex(2); myGraph.addVertex(3); myGraph.addVertex(4);
-	myGraph.addVertex(5); myGraph.addVertex(6); myGraph.addVertex(7);
-	myGraph.addEdge(1, 2, 0);
-	myGraph.addEdge(1, 4, 0);
-	myGraph.addEdge(1, 3, 0);
-	myGraph.addEdge(2, 5, 0);
-	myGraph.addEdge(2, 4, 0);
-	myGraph.addEdge(3, 6, 0);
-	myGraph.addEdge(4, 3, 0);
-	myGraph.addEdge(4, 6, 0);
-	myGraph.addEdge(4, 7, 0);
-	myGraph.addEdge(5, 4, 0);
-	myGraph.addEdge(5, 7, 0);
-	myGraph.addEdge(7, 6, 0);
-
-	vector<int> topOrder;
-
-	topOrder = myGraph.topsort();
+template <class T>
+void checkSinglePath(Graph<T> &g, vector<T> path, string expected) {
 	stringstream ss;
-	for( unsigned int i = 0; i < topOrder.size(); i++)
-		ss << topOrder[i] << " ";
-	ASSERT_EQUAL("1 2 5 4 3 7 6 ", ss.str());
-
-	//para testar a inclusao de um ciclo no grafo!
-	myGraph.addEdge(3, 1, 0);
-
-	topOrder = myGraph.topsort();
-	ss.str("");
-	for( unsigned int i = 0; i < topOrder.size(); i++)
-		ss << topOrder[i] << " ";
-	ASSERT_EQUAL("", ss.str());
+	for(unsigned int i = 0; i < path.size(); i++)
+		ss << path[i] << " ";
+	ASSERT_EQUAL(expected, ss.str());
 }
 
+template <class T>
+void checkAllPaths(Graph<T> &g, string expected) {
+	stringstream ss;
+	vector<Vertex<T>* > vs = g.getVertexSet();
+	for(unsigned int i = 0; i < vs.size(); i++) {
+		ss << vs[i]->getInfo() << "<-";
+		if ( vs[i]->getPath() != NULL )
+			ss << vs[i]->getPath()->getInfo();
+		ss << "|";
+	}
+	ASSERT_EQUAL(expected, ss.str());
+}
+
+void test_unweightedShortestPath() {
+	Graph<int> myGraph = CreateTestGraph();
+
+	myGraph.unweightedShortestPath(3);
+	checkAllPaths(myGraph, "1<-3|2<-1|3<-|4<-1|5<-2|6<-3|7<-4|");
+	checkSinglePath(myGraph, myGraph.getPath(3, 7), "3 1 4 7 ");
+
+	myGraph.unweightedShortestPath(5);
+	checkSinglePath(myGraph, myGraph.getPath(5, 6), "5 7 6 ");
+}
+
+
+void test_bellmanFord() {
+	Graph<int> myGraph = CreateTestGraph();
+
+	myGraph.bellmanFordShortestPath(3);
+	checkAllPaths(myGraph, "1<-3|2<-1|3<-|4<-2|5<-4|6<-3|7<-5|");
+
+	myGraph.bellmanFordShortestPath(1);
+	checkSinglePath(myGraph, myGraph.getPath(1, 7), "1 2 4 5 7 ");
+
+	myGraph.bellmanFordShortestPath(5);
+	checkSinglePath(myGraph, myGraph.getPath(5, 6), "5 7 6 ");
+
+	myGraph.bellmanFordShortestPath(7);
+	checkSinglePath(myGraph, myGraph.getPath(7, 1), "7 6 4 3 1 ");
+}
+
+
+void test_dijkstra() {
+	Graph<int> myGraph = CreateTestGraph();
+
+	myGraph.dijkstraShortestPath(3);
+	checkAllPaths(myGraph, "1<-3|2<-1|3<-|4<-2|5<-4|6<-3|7<-5|");
+
+	myGraph.dijkstraShortestPath(1);
+	checkAllPaths(myGraph, "1<-|2<-1|3<-4|4<-2|5<-4|6<-4|7<-5|");
+	checkSinglePath(myGraph, myGraph.getPath(1, 7), "1 2 4 5 7 ");
+
+	myGraph.dijkstraShortestPath(5);
+	checkSinglePath(myGraph, myGraph.getPath(5, 6), "5 7 6 ");
+
+	myGraph.dijkstraShortestPath(7);
+	checkSinglePath(myGraph, myGraph.getPath(7, 1), "7 6 4 3 1 ");
+}
+
+void test_floydWarshall() {
+	Graph<int> myGraph = CreateTestGraph();
+	myGraph.floydWarshallShortestPath();
+	checkSinglePath(myGraph, myGraph.getfloydWarshallPath(1, 7), "1 2 4 5 7 ");
+	checkSinglePath(myGraph, myGraph.getfloydWarshallPath(5, 6), "5 7 6 ");
+	checkSinglePath(myGraph, myGraph.getfloydWarshallPath(7, 1), "7 6 4 3 1 ");
+}
 
 bool runAllTests(int argc, char const *argv[]) {
 	cute::suite s { };
-	s.push_back(CUTE(test_addVertex));
-	s.push_back(CUTE(test_addEdge));
-	s.push_back(CUTE(test_removeEdge));
-	s.push_back(CUTE(test_removeVertex));
-	s.push_back(CUTE(test_dfs));
-	s.push_back(CUTE(test_removeVertex_Again));
-	s.push_back(CUTE(test_removeEdge_Again));
-	s.push_back(CUTE(test_bfs));
-	s.push_back(CUTE(test_topsort));
-	s.push_back(CUTE(test_maxNewChildren));
-	s.push_back(CUTE(test_isDAG));
-
+	s.push_back(CUTE(test_dijkstra));
+	s.push_back(CUTE(test_performance_dijkstra));
+	s.push_back(CUTE(test_bellmanFord));
+	s.push_back(CUTE(test_unweightedShortestPath));
+	s.push_back(CUTE(test_floydWarshall));
 	cute::xml_file_opener xmlfile(argc, argv);
 	cute::xml_listener<cute::ide_listener<>> lis(xmlfile.out);
 	auto runner = cute::makeRunner(lis, argc, argv);
@@ -251,4 +168,3 @@ bool runAllTests(int argc, char const *argv[]) {
 int main(int argc, char const *argv[]) {
     return runAllTests(argc, argv) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
