@@ -30,11 +30,26 @@ public:
 	T * extractMin();
 	void decreaseKey(T * x);
 	bool empty();
+	bool hasElement(T *x);
 };
 
 // Index calculations
 #define parent(i) ((i) >> 1)  /* i / 2 */
 #define leftChild(i) ((i) << 1)  /* i * 2 */
+
+template<class T>
+bool MutablePriorityQueue<T>::hasElement(T* x) {
+	if (this->empty())
+		return false;
+	for (T* element : H) {
+		if (element != NULL)
+			if ((*element) == (*x))
+				return true;
+	}
+	return false;
+}
+
+
 
 template <class T>
 MutablePriorityQueue<T>::MutablePriorityQueue() {

@@ -37,6 +37,7 @@ class Vertex {
 public:
 	Vertex(T in);
 	bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
+	bool operator==(Vertex<T> & vertex) const;
 	T getInfo() const;
 	double getDist() const;
 	Vertex *getPath() const;
@@ -60,6 +61,11 @@ void Vertex<T>::addEdge(Vertex<T> *d, double w) {
 template <class T>
 bool Vertex<T>::operator<(Vertex<T> & vertex) const {
 	return this->dist < vertex.dist;
+}
+
+template <class T>
+bool Vertex<T>::operator==(Vertex<T> & vertex) const {
+	return this->info == vertex.info;
 }
 
 template <class T>
@@ -111,7 +117,7 @@ public:
 	void dijkstraShortestPathOld(const T &s);
 	void unweightedShortestPath(const T &s);
 	void bellmanFordShortestPath(const T &s);
-	vector<T> getPath(const T &origin, const T &dest) const;
+	vector<T> getPath(const T &origin, const T &dest);
 
 	// Fp05 - all pairs
 	void floydWarshallShortestPath();
@@ -171,69 +177,61 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 /**************** Single Source Shortest Path algorithms ************/
 
 template<class T>
-void Graph<T>::dijkstraShortestPath(const T &s) {
+void Graph<T>::dijkstraShortestPath(const T &origin) {
 
-	for (unsigned int i = 0; i < vertexSet.size(); i++) {
-		vertexSet[i]->path = NULL;
-		vertexSet[i]->dist = INF;
-		vertexSet[i]->processing = false;
-	}
-	Vertex<T>* v = findVertex(s);
-	v->dist = 0;
 
-	MutablePriorityQueue<Vertex<T> > q;
-	q.insert(v); //key?
-
-	while (!q.empty()){
-		v = q.extractMin();
-
-		for (unsigned int i = 0; i < v->adj.size(); i ++){
-			Vertex<T>* w = v->adj[i].dest;
-
-			if (v->dist + v->adj[i].weight < w->dist) {
-
-				w->dist = v->dist + v->adj[i].weight;
-				w->path = v;
-
-				if (!w->processing) {
-					w->processing = true;
-					q.insert(w);
-				} else {
-
-				q.decreaseKey(w);
-				}
+	Vertex<T>* vertexOrigin = NULL;
+	for (Vertex<T>* v : vertexSet) {
+		if (v->info == origin) {
+			v->dist = 0;
+			vertexOrigin = v;
+		} else {
+			v->dist = INF;
 		}
-
+		v->path = NULL;
 	}
-	}
+	MutablePriorityQueue<Vertex<T>> q;
+	q.insert(vertexOrigin);
 
+
+
+
+	while (!q.empty()) {
+		Vertex<T>* v = q.extractMin();
+		for (Edge<T> edge : v->adj) {
+			Vertex<T>* w = edge.dest;
+			if (w->dist > (v->dist + edge.weight)) {
+				w->dist = (v->dist + edge.weight);
+				w->path = v;
+				if (q.hasElement(w)) {
+					q.decreaseKey(w);
+				} else {
+					q.insert(w);
+				}
+			}
+		}
+	}
 
 }
 
+
 template<class T>
-vector<T> Graph<T>::getPath(const T &origin, const T &dest) const{
-	vector<T> res;
+vector<T> Graph<T>::getPath(const T &origin, const T &dest){
 
-	//dijkstraShortestPath(origin);
-	//error related with const (??)
+		vector<T> res;
+		this->dijkstraShortestPath(origin);
+		Vertex<T>* currentVertex = this->findVertex(dest);
 
+		res.push_back(currentVertex->info);
+		while(currentVertex->info != origin)
+		{
+			currentVertex = currentVertex->path;
+			res.push_back(currentVertex->info);
+		}
 
-	list<T> buffer;
-	Vertex<T>* v = findVertex(dest);
+		reverse(res.begin(),res.end());
+		return res;
 
-	buffer.push_front(v->info);
-	while (!(v->path->info == origin)) {
-		v = v->path;
-		buffer.push_front(v->info);
-	}
-	buffer.push_front(v->path->info);
-
-	while (!buffer.empty()) {
-		res.push_back(buffer.front());
-		buffer.pop_front();
-	}
-
-	return res;
 }
 
 template<class T>
