@@ -9,7 +9,8 @@ public:
 	double getDistance(double lat1, double lon1,double lat2,double lon2);
 	double getTime(double distance, double velocity);
 	double deg2rad(double deg);
-	void extractData(String fileName);
+	template<class T>
+	void extractData(string fileName, T &g);
 };
 
 
@@ -34,10 +35,14 @@ double AuxiliarMethods::deg2rad(double deg) {
   return deg * (M_PI/180);
 }
 
-void AuxiliarMethods::extractData(string fileName, Graph &g)
+
+/*
+
+template<class T>
+void AuxiliarMethods::extractData(string fileName, T &g)
 {
 	stringstream ssA;
-	ifstream file(filename);
+	ifstream file(fileName);
 	int ID;
 	double latitude;
 	double longitude;
@@ -60,6 +65,5 @@ void AuxiliarMethods::extractData(string fileName, Graph &g)
 
 		}
 	}
-
-
 }
+*/

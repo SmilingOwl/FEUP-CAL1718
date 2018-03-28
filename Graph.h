@@ -98,7 +98,7 @@ class Edge {
 	double weight;         // edge weight
 	string name;
 public:
-	Edge(Vertex<T> *d, double w);
+	Edge(Vertex<T> *d, double w, string n);
 	friend class Graph<T>;
 	friend class Vertex<T>;
 };
