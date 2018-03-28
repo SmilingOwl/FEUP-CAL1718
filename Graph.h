@@ -101,6 +101,7 @@ public:
 	Edge(Vertex<T> *d, double w, string n);
 	friend class Graph<T>;
 	friend class Vertex<T>;
+	void changeName(string name);
 };
 
 template <class T>
@@ -110,7 +111,10 @@ Edge<T>::Edge(Vertex<T> *d, double w, string n){
 	this->name = n;
 }
 
-
+template <class T>
+void Edge<T>::Edge(string n){
+	this->name = n;
+}
 /*************************** Graph  **************************/
 
 template <class T>
