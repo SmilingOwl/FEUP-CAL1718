@@ -28,6 +28,7 @@ class Vertex {
 	vector<Edge<T> > adj;  // outgoing edges
 	bool visited;          // auxiliary field
 	double dist = 0;
+	double lat, lon;
 	Vertex<T> *path = NULL;
 	int queueIndex = 0; 		// required by MutablePriorityQueue
 
@@ -95,6 +96,7 @@ template <class T>
 class Edge {
 	Vertex<T> * dest;      // destination vertex
 	double weight;         // edge weight
+	string name;
 public:
 	Edge(Vertex<T> *d, double w);
 	friend class Graph<T>;
@@ -102,7 +104,11 @@ public:
 };
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
+Edge<T>::Edge(Vertex<T> *d, double w, string n){
+	this->dest = d;
+	this->weight = w;
+	this->name = n;
+}
 
 
 /*************************** Graph  **************************/
