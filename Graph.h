@@ -35,7 +35,7 @@ class Vertex {
 	void addEdge(Vertex<T> *dest, double w);
 
 public:
-	Vertex(T in);
+	Vertex(T in,double lat, double lon);
 	bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
 	bool operator==(Vertex<T> & vertex) const;
 	T getInfo() const;
@@ -46,8 +46,14 @@ public:
 };
 
 
+
 template <class T>
-Vertex<T>::Vertex(T in): info(in) {}
+Vertex<T>::Vertex(T in,double lat, double lon) {
+	this->info = info;
+	this->lat= lat;
+	this->lon= lon;
+
+}
 
 /*
  * Auxiliary function to add an outgoing edge to a vertex (this),
