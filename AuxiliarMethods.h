@@ -1,4 +1,4 @@
-
+#include "Graph.h"
 #include <cmath>
 
 
@@ -9,7 +9,9 @@ public:
 	double getDistance(double lat1, double lon1,double lat2,double lon2);
 	double getTime(double distance, double velocity);
 	double deg2rad(double deg);
+	void extractData(String fileName);
 };
+
 
 
 
@@ -30,4 +32,34 @@ double AuxiliarMethods::getTime(double distance, double velocity){
 
 double AuxiliarMethods::deg2rad(double deg) {
   return deg * (M_PI/180);
+}
+
+void AuxiliarMethods::extractData(string fileName, Graph &g)
+{
+	stringstream ssA;
+	ifstream file(filename);
+	int ID;
+	double latitude;
+	double longitude;
+
+	if(file.is_open())
+	{
+		string line;
+
+		while(getline(file,line))
+		{
+			//ID
+			getline(ssA,ID,';');
+			//Latitude
+			getline(ssA,latitude,';');
+			//longitude
+			getline(ssA,longitude,';');
+
+			Vertex temV=new Vertex(ID,latitude,longitude);
+			g.addVertex(tempV);
+
+		}
+	}
+
+
 }
