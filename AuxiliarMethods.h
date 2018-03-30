@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "Graph.h"
 using namespace std;
 
 string NodesFileName;
@@ -21,6 +22,8 @@ public:
 	void extractDataArestas(T &g);
 	template<class T>
 	void extractDataStreets(T &g);
+	template<class T>
+	bool generateBusLines(T &g, int numberOfNodes);
 };
 
 //Haversine Formula (kilometers)
@@ -106,7 +109,23 @@ void AuxiliarMethods::extractDataArestas(T &g) {
 		getline(lineSs, string, ';');
 		//Destino
 		lineSs >> idFinal;
-		g.addEdge(idEdge, idOrigin, idFinal);
+
+		for(int i = 0; i< g.edgeC.size(); i++){
+			if (g.edgeC.at(i) == idEdge){
+				if(g.twoWay.at(i)){
+					g.addEdge(idOrigin, idFinal, 0);
+					g.addEdge(idFinal, idOrigin, 0);
+				} else {
+					g.addEdge(idOrigin, idFinal, 0);
+				}
+
+				//TODO por o nome da rua
+
+				break;
+			}
+		}
+
+
 	}
 	file.close();
 }
@@ -117,11 +136,44 @@ void AuxiliarMethods::extractDataStreets(T &g) {
 	openFile(file, StreetsFileName);
 	string line;
 
+	int idEdge = 0;
+	string nameOfStreet;
+	bool twoWays = false;
+
 	while(getline(file,line))
 	{
 		stringstream lineSs(line);
+		string string;
+		//ID
+		lineSs >> idEdge;
+		getline(lineSs, string, ';');
+		//nome da rua
+		lineSs >> nameOfStreet;
+		getline(lineSs, string, ';');
+		//direção
+		lineSs >> twoWays;
+
+		g.edgeC.push_back(idEdge);
+		g.nameC.push_back(nameOfStreet);
+		g.twoWay.push_back(twoWays);
+
+
 
 	}
+
+}
+
+template<class T>
+bool AuxiliarMethods::generateBusLines(T &g, int numberOfNodes){
+	if (numberOfNodes <= 1 || numberOfNodes>= g->VertexSet.size()) return false;
+
+	Vertex<T>* initialVertex = g->getRandomVertex();
+	Vertex<T>* initialBus = initialVertex->createBusVertex();
+
+	for (unsigned int i = 1; i < numberOfNodes; i++){
+		//TODO
+	}
+
 
 }
 
