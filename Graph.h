@@ -48,6 +48,7 @@ public:
 	Vertex *getPath() const;
 	friend class Graph<T>;
 	friend class MutablePriorityQueue<Vertex<T>>;
+	vector<Vertex<T>> * getRandomVertexDestination();
 
 };
 
@@ -107,6 +108,14 @@ double Vertex<T>::getDist() const {
 template <class T>
 Vertex<T> *Vertex<T>::getPath() const {
 	return this->path;
+}
+
+template <class T>
+vector<Vertex<T>>* Vertex<T>::getRandomVertexDestination(){
+
+	int randomIndex = rand() % this->adj.size();
+
+	return adj.at(randomIndex)->dest;
 }
 
 /********************** Edge  ****************************/

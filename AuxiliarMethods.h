@@ -168,10 +168,24 @@ bool AuxiliarMethods::generateBusLines(T &g, int numberOfNodes){
 	if (numberOfNodes <= 1 || numberOfNodes>= g->VertexSet.size()) return false;
 
 	Vertex<T>* initialVertex = g->getRandomVertex();
-	Vertex<T>* initialBus = initialVertex->createBusVertex();
+	Vertex<T>* initialBusVertex = initialVertex->createBusVertex();
+	Vertex<T> * nextVertex;
+
+	initialBusVertex->isBusNow();
+	g->addVertex(initialBusVertex);
 
 	for (unsigned int i = 1; i < numberOfNodes; i++){
-		//TODO
+
+		nextVertex = initialVertex->getRandomVertexDestination();
+		nextVertex->isBusNow();
+
+		g->addVertex(nextVertex);
+
+		g->addEdge(i*55,initialBusVertex,nextVertex,0);
+
+		initialBusVertex = nextVertex;
+
+
 	}
 
 
