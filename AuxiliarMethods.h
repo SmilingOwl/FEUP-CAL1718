@@ -11,21 +11,24 @@ string NodesFileName;
 string EdgesFileName;
 string StreetsFileName;
 
+const double INTERCHANGE = 2;
+
 class AuxiliarMethods {
 public:
 	double getDistance(double lat1, double lon1, double lat2, double lon2);
 	double getTime(double distance, double velocity);
 	double deg2rad(double deg);
+	double getDistanceVertex(Node* n1, Node* n2);
 
 	bool openFile(ifstream &file, const string fileName);
-	template<class T>
-	void extractDataNodes(T &g);
-	template<class T>
-	void extractDataArestas(T &g);
-	template<class T>
-	void extractDataStreets(T &g);
-	template<class T>
-	bool generateBusLines(T &g, int numberOfNodes);
+
+	void extractDataNodes(Graph &g);
+
+	void extractDataArestas(Graph &g);
+
+	void extractDataStreets(Graph &g);
+
+	bool generateBusLines(Graph &g, int numberOfNodes);
 };
 
 //Haversine Formula (kilometers)
@@ -40,6 +43,10 @@ double AuxiliarMethods::getDistance(double lat1, double lon1, double lat2,
 	double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 	double d = R * c; // Distance in km
 	return d;
+}
+
+double AuxiliarMethods::getDistanceVertex(Node* n1, Node* n2){
+	return getDistance(n1->getLat(),n1->getLon(),n2->getLat(),n2->getLon());
 }
 
 double AuxiliarMethods::getTime(double distance, double velocity) {
@@ -59,8 +66,8 @@ bool AuxiliarMethods::openFile(ifstream &file, const string fileName) {
 		return true;
 }
 
-template<class T>
-void AuxiliarMethods::extractDataNodes(T &g) {
+
+void AuxiliarMethods::extractDataNodes(Graph &g) {
 
 	ifstream file;
 	openFile(file, NodesFileName);
@@ -84,13 +91,13 @@ void AuxiliarMethods::extractDataNodes(T &g) {
 		//longitude
 		lineSs >> longitude;
 
-		g.addNode(ID, latitude, longitude);
+		g.addVertex(ID, latitude, longitude);
 	}
 	file.close();
 }
 
-template<class T>
-void AuxiliarMethods::extractDataArestas(T &g) {
+
+void AuxiliarMethods::extractDataArestas(Graph &g) {
 	ifstream file;
 	openFile(file, EdgesFileName);
 
@@ -115,13 +122,13 @@ void AuxiliarMethods::extractDataArestas(T &g) {
 		for(int i = 0; i< g.edgeC.size(); i++){
 			if (g.edgeC.at(i) == idEdge){
 				if(g.twoWay.at(i)){
-					g.addEdge(idOrigin, idFinal, 0);
-					g.addEdge(idFinal, idOrigin, 0);
+					g.addEdge(idEdge,idOrigin, idFinal, 0);
+					g.addEdge(idEdge*123,idFinal, idOrigin, 0);
 				} else {
-					g.addEdge(idOrigin, idFinal, 0);
+					g.addEdge(idEdge,idOrigin, idFinal, 0);
 				}
 
-				//TODO por o nome da rua
+
 
 				break;
 			}
@@ -132,8 +139,8 @@ void AuxiliarMethods::extractDataArestas(T &g) {
 	file.close();
 }
 
-template<class T>
-void AuxiliarMethods::extractDataStreets(T &g) {
+
+void AuxiliarMethods::extractDataStreets(Graph &g) {
 	ifstream file;
 	openFile(file, StreetsFileName);
 	string line;
@@ -165,27 +172,33 @@ void AuxiliarMethods::extractDataStreets(T &g) {
 
 }
 
-template<class T>
-bool AuxiliarMethods::generateBusLines(T &g, int numberOfNodes){
-	if (numberOfNodes <= 1 || numberOfNodes>= g->VertexSet.size()) return false;
 
-	Node* initialVertex = g->getRandomVertex();
+bool AuxiliarMethods::generateBusLines(Graph &g, int numberOfNodes){
+	if (numberOfNodes <= 1 || numberOfNodes>= g.getVertexSet().size()) return false;
+
+	Node* initialVertex = g.getRandomVertex();
 	Node* initialBusVertex = initialVertex->createBusVertex();
 	Node* nextVertex;
+	Node* nextBusVertex;
 
-	initialBusVertex->isBusNow();
-	g->addVertex(initialBusVertex);
 
+	g.addVertex(initialBusVertex);
+	g.addEdge(rand()%10000000,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE);
+	g.addEdge(rand()%10000000,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE);
 	for (unsigned int i = 1; i < numberOfNodes; i++){
 
 		nextVertex = initialVertex->getRandomVertexDestination();
-		nextVertex->isBusNow();
+		nextBusVertex =  nextVertex->createBusVertex();
 
-		g->addVertex(nextVertex);
+		g.addVertex(nextBusVertex);
+		g.addEdge(rand()%10000000,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE);
+		g.addEdge(rand()%10000000,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE);
 
-		g->addEdge(i*55,initialBusVertex,nextVertex,0);
+		g.addEdge(rand()%10000000,initialBusVertex->getID(),nextVertex->getID(),getDistanceVertex(initialBusVertex,nextVertex));
+		g.addEdge(rand()%10000000+1,initialVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextVertex));
 
-		initialBusVertex = nextVertex;
+		initialVertex = nextVertex;
+		initialBusVertex = nextBusVertex;
 
 
 	}

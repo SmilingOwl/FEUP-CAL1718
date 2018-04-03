@@ -31,6 +31,7 @@ public:
 	Node *findVertex(int id) const;
 	Node *getRandomVertex();
 	bool addVertex(int id, int lat, int lon);
+	bool addVertex(Node* n);
 	bool addEdge(int id,int sourc, int dest, double w);
 
 	int getNumVertex() const;
@@ -48,12 +49,16 @@ public:
 
 	void printView();
 
+	void extractDataNodes();
+	void extractDataArestas();
+	void extractDataStreets();
+
 };
 
 class Aresta {
 	int id;
 	Node* dest;      // destination vertex
-	double weight;         // edge weight
+	double weight;         // edge weight - distance in km
 	string name;
 public:
 	Aresta(int id, Node *d, double w, string n);
@@ -170,10 +175,20 @@ Node* Graph::getRandomVertex(){
  */
 
 bool Graph::addVertex(int id, int lat, int lon) {
-	if ( findVertex(id) != NULL)
-		return false;
+	while ( findVertex(id) != NULL){
+		id++;
+	}
 	vertexSet.push_back(new Node(id, lat, lon));
 	return true;
+}
+
+bool Graph::addVertex(Node* n){
+	if (findVertex(n->getID()) != NULL){
+		return false;
+	}
+	vertexSet.push_back(n);
+	return true;
+
 }
 
 /*
@@ -185,8 +200,15 @@ bool Graph::addVertex(int id, int lat, int lon) {
 bool Graph::addEdge(int id,int sourc, int dest, double w) {
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
-	if (v1 == NULL || v2 == NULL)
-		return false;
+	while (v1 == NULL){
+		sourc++;
+		v1 = findVertex(sourc);
+	}
+
+	while (v2 == NULL){
+		dest++;
+		v2 = findVertex(dest);
+	}
 	v1->addEdge(v2,w);
 	return true;
 }
@@ -288,8 +310,9 @@ Node::Node(int id,double lat, double lon) {
 
 
 Node * Node::createBusVertex(){
-	Node* newVertex = new Node(this->id, this->lat, this->lon);
+	Node* newVertex = new Node((this->id)%10000, this->lat, this->lon);
 	newVertex->isBusNow();
+
 
 	return newVertex;
 }
