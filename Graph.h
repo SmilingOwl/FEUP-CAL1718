@@ -1,202 +1,164 @@
 /*
  * Graph.h
  */
-#ifndef GRAPH_H_
-#define GRAPH_H_
+
+#pragma once
 
 #include <vector>
+#include <algorithm>
 #include <queue>
 #include <list>
 #include <limits>
 #include <cmath>
 #include "MutablePriorityQueue.h"
+#include "graphviewer.h"
 
 using namespace std;
 
-template <class T> class Edge;
-template <class T> class Graph;
-template <class T> class Vertex;
+
 
 #define INF std::numeric_limits<double>::max()
 
+class Graph;
+class Node;
+class Aresta;
 
-/************************* Vertex  **************************/
-
-template <class T>
-class Vertex {
-	T info;                // contents
-	vector<Edge<T> > adj;  // outgoing edges
-	bool visited;          // auxiliary field
-	bool bus = false;
-	double dist = 0;
-	double lat, lon;
-	Vertex<T> *path = NULL;
-	int queueIndex = 0; 		// required by MutablePriorityQueue
-
-	bool processing = false;
-	void addEdge(Vertex<T> *dest, double w);
-
-public:
-	Vertex(T in,double lat, double lon);
-	Vertex<T> * createBusVertex();
-	void isBusNow();
-	bool operator<(Vertex<T> & vertex) const; // required by MutablePriorityQueue
-	bool operator==(Vertex<T> & vertex) const;
-	v
-	T getInfo() const;
-	double getDist() const;
-	Vertex *getPath() const;
-	friend class Graph<T>;
-	friend class MutablePriorityQueue<Vertex<T>>;
-	vector<Vertex<T>> * getRandomVertexDestination();
-
-};
-
-
-
-template <class T>
-Vertex<T>::Vertex(T in,double lat, double lon) {
-	this->info = info;
-	this->lat= lat;
-	this->lon= lon;
-
-}
-
-/*
- * Auxiliary function to add an outgoing edge to a vertex (this),
- * with a given destination vertex (d) and edge weight (w).
- */
-
-template <class T>
-Vertex<T> * Vertex<T>::createBusVertex(){
-	Vertex<T>* newVertex = new Vertex(this->info, this->lat, this->lon);
-	newVertex->isBusNow();
-
-	return newVertex;
-}
-
-template <class T>
-void Vertex<T>::isBusNow(){
-	this->bus = true;
-}
-
-template <class T>
-void Vertex<T>::addEdge(Vertex<T> *d, double w) {
-	adj.push_back(Edge<T>(d, w));
-}
-
-template <class T>
-bool Vertex<T>::operator<(Vertex<T> & vertex) const {
-	return this->dist < vertex.dist;
-}
-
-template <class T>
-bool Vertex<T>::operator==(Vertex<T> & vertex) const {
-	return this->info == vertex.info;
-}
-
-template <class T>
-T Vertex<T>::getInfo() const {
-	return this->info;
-}
-
-template <class T>
-double Vertex<T>::getDist() const {
-	return this->dist;
-}
-
-template <class T>
-Vertex<T> *Vertex<T>::getPath() const {
-	return this->path;
-}
-
-template <class T>
-vector<Vertex<T>>* Vertex<T>::getRandomVertexDestination(){
-
-	int randomIndex = rand() % this->adj.size();
-
-	return adj.at(randomIndex)->dest;
-}
-
-/********************** Edge  ****************************/
-
-template <class T>
-class Edge {
-	Vertex<T> * dest;      // destination vertex
-	double weight;         // edge weight
-	string name;
-public:
-	Edge(Vertex<T> *d, double w, string n);
-	friend class Graph<T>;
-	friend class Vertex<T>;
-	void changeName(string name);
-};
-
-template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w, string n){
-	this->dest = d;
-	this->weight = w;
-	this->name = n;
-}
-
-template <class T>
-void Edge<T>::Edge(string n){
-	this->name = n;
-}
-/*************************** Graph  **************************/
-
-template <class T>
 class Graph {
-	vector<Vertex<T> *> vertexSet;    // vertex set
+	vector<Node *> vertexSet;    // vertex set
+	GraphViewer *gv;
 
 public:
-	Vertex<T> *findVertex(const T &in) const;
-	Vertex<T> *getRandomVertex();
-	bool addVertex(const T &in);
-	bool addEdge(int id, const T &sourc, const T &dest, double w);
+	Node *findVertex(int id) const;
+	Node *getRandomVertex();
+	bool addVertex(int id, int lat, int lon);
+	bool addEdge(int id,int sourc, int dest, double w);
 
 	int getNumVertex() const;
-	vector<Vertex<T> *> getVertexSet() const;
+	vector<Node *> getVertexSet() const;
 	vector<int> edgeC;
 	vector<string> nameC;
 	vector<bool> twoWay;
 
 	// Fp05 - single source
-	void dijkstraShortestPath(const T &s);
-	void dijkstraShortestPathOld(const T &s);
-	void unweightedShortestPath(const T &s);
-	void bellmanFordShortestPath(const T &s);
-	vector<T> getPath(const T &origin, const T &dest);
+	void dijkstraShortestPath(int s);
+	void dijkstraShortestPathOld(int s);
+	void unweightedShortestPath(int s);
+	void bellmanFordShortestPath(int s);
+	vector<int> getPath(int origin,int dest);
 
-	// Fp05 - all pairs
-	void floydWarshallShortestPath();
-	vector<T> getfloydWarshallPath(const T &origin, const T &dest) const;
+	void printView();
 
 };
 
-template <class T>
-int Graph<T>::getNumVertex() const {
-	return vertexSet.size();
+class Aresta {
+	int id;
+	Node* dest;      // destination vertex
+	double weight;         // edge weight
+	string name;
+public:
+	Aresta(int id, Node *d, double w, string n);
+	friend class Graph;
+	friend class Node;
+	void changeName(string n);
+	Node* getDest();
+};
+
+class Node {
+	int id;
+	vector<Aresta> adj;  // outgoing edges
+	bool visited;          // auxiliary field
+	bool bus = false;
+	double dist = 0;
+	double lat, lon;
+	Node *path = NULL;
+	int queueIndex = 0; 		// required by MutablePriorityQueue
+
+	bool processing = false;
+	void addEdge(Node *dest, double w);
+
+public:
+	Node(int id,double lat, double lon);
+	Node * createBusVertex();
+	void isBusNow();
+	bool operator<(Node & vertex) const; // required by MutablePriorityQueue
+	bool operator==(Node & vertex) const;
+	int getID() const;
+	double getDist() const;
+	Node *getPath() const;
+	double getLat() const;
+	double getLon() const;
+	bool getBus() const;
+	Node* getRandomVertexDestination();
+	vector<Aresta> getAdj();
+
+	friend class Graph;
+	friend class MutablePriorityQueue<Node>;
+
+};
+
+
+
+
+
+
+
+
+
+int Graph::getNumVertex() const {
+	return vertexSet.size();class Node {
+		int id;
+		vector<Aresta> adj;  // outgoing edges
+		bool visited;          // auxiliary field
+		bool bus = false;
+		double dist = 0;
+		double lat, lon;
+		Node *path = NULL;
+		int queueIndex = 0; 		// required by MutablePriorityQueue
+
+		bool processing = false;
+		void addEdge(Node *dest, double w);
+
+	public:
+		Node(int id,double lat, double lon);
+		Node * createBusVertex();
+		void isBusNow();
+		bool operator<(Node & vertex) const; // required by MutablePriorityQueue
+		bool operator==(Node & vertex) const;
+		int getID() const;
+		double getDist() const;
+		Node *getPath() const;
+		double getLat() const;
+		double getLon() const;
+		bool getBus() const;
+		Node* getRandomVertexDestination();
+		vector<Aresta> getAdj();
+
+
+		friend class MutablePriorityQueue;
+		friend class Graph;
+
+
+	};
 }
 
-template <class T>
-vector<Vertex<T> *> Graph<T>::getVertexSet() const {
+
+vector<Node *> Graph::getVertexSet() const {
 	return vertexSet;
 }
 
 /*
  * Auxiliary function to find a vertex with a given content.
  */
-template <class T>
-Vertex<T> * Graph<T>::findVertex(const T &in) const {
+
+Node* Graph::findVertex(int id) const {
 	for (auto v : vertexSet)
-		if (v->info == in)
+		if (v->id == id)
 			return v;
 	return NULL;
 }
 
-template <class T>
-Vertex<T> * Graph<T>::getRandomVertex(){
+
+Node* Graph::getRandomVertex(){
 	srand(time(NULL));
 	int r = rand() % vertexSet.size();
 	return vertexSet.at(r);
@@ -206,11 +168,11 @@ Vertex<T> * Graph<T>::getRandomVertex(){
  *  Adds a vertex with a given content or info (in) to a graph (this).
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
-template <class T>
-bool Graph<T>::addVertex(const T &in) {
-	if ( findVertex(in) != NULL)
+
+bool Graph::addVertex(int id, int lat, int lon) {
+	if ( findVertex(id) != NULL)
 		return false;
-	vertexSet.push_back(new Vertex<T>(in));
+	vertexSet.push_back(new Node(id, lat, lon));
 	return true;
 }
 
@@ -219,8 +181,8 @@ bool Graph<T>::addVertex(const T &in) {
  * destination vertices and the edge weight (w).
  * Returns true if successful, and false if the source or destination vertex does not exist.
  */
-template <class T>
-bool Graph<T>::addEdge(int id, const T &sourc, const T &dest, double w) {
+
+bool Graph::addEdge(int id,int sourc, int dest, double w) {
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
 	if (v1 == NULL || v2 == NULL)
@@ -232,13 +194,13 @@ bool Graph<T>::addEdge(int id, const T &sourc, const T &dest, double w) {
 
 /**************** Single Source Shortest Path algorithms ************/
 
-template<class T>
-void Graph<T>::dijkstraShortestPath(const T &origin) {
+
+void Graph::dijkstraShortestPath(int origin) {
 
 
-	Vertex<T>* vertexOrigin = NULL;
-	for (Vertex<T>* v : vertexSet) {
-		if (v->info == origin) {
+	Node* vertexOrigin = NULL;
+	for (Node* v : vertexSet) {
+		if (v->id == origin) {
 			v->dist = 0;
 			vertexOrigin = v;
 		} else {
@@ -246,16 +208,16 @@ void Graph<T>::dijkstraShortestPath(const T &origin) {
 		}
 		v->path = NULL;
 	}
-	MutablePriorityQueue<Vertex<T>> q;
+	MutablePriorityQueue<Node> q;
 	q.insert(vertexOrigin);
 
 
 
 
 	while (!q.empty()) {
-		Vertex<T>* v = q.extractMin();
-		for (Edge<T> edge : v->adj) {
-			Vertex<T>* w = edge.dest;
+		Node* v = q.extractMin();
+		for (Aresta edge : v->adj) {
+			Node* w = edge.dest;
 			if (w->dist > (v->dist + edge.weight)) {
 				w->dist = (v->dist + edge.weight);
 				w->path = v;
@@ -271,49 +233,188 @@ void Graph<T>::dijkstraShortestPath(const T &origin) {
 }
 
 
-template<class T>
-vector<T> Graph<T>::getPath(const T &origin, const T &dest){
 
-		vector<T> res;
+vector<int> Graph::getPath(int origin,int dest){
+
+		vector<int> res;
 		this->dijkstraShortestPath(origin);
-		Vertex<T>* currentVertex = this->findVertex(dest);
+		Node* currentVertex = this->findVertex(dest);
 
-		res.push_back(currentVertex->info);
-		while(currentVertex->info != origin)
+		res.push_back(currentVertex->id);
+		while(currentVertex->id != origin)
 		{
 			currentVertex = currentVertex->path;
-			res.push_back(currentVertex->info);
+			res.push_back(currentVertex->id);
 		}
 
 		reverse(res.begin(),res.end());
 		return res;
-
-}
-
-template<class T>
-void Graph<T>::unweightedShortestPath(const T &orig) {
-	// TODO
-}
-
-template<class T>
-void Graph<T>::bellmanFordShortestPath(const T &orig) {
-	// TODO
 }
 
 
-/**************** All Pairs Shortest Path  ***************/
 
-template<class T>
-void Graph<T>::floydWarshallShortestPath() {
-	// TODO
-}
-
-template<class T>
-vector<T> Graph<T>::getfloydWarshallPath(const T &orig, const T &dest) const{
-	vector<T> res;
-	// TODO
-	return res;
+vector<Aresta> Node::getAdj(){
+	return this->adj;
 }
 
 
-#endif /* GRAPH_H_ */
+double Node::getLat() const{
+	return this->lat;
+}
+
+
+double Node::getLon() const{
+	return this->lon;
+}
+
+
+bool Node::getBus() const{
+	return this->bus;
+}
+
+
+
+Node::Node(int id,double lat, double lon) {
+	this->id = id;
+	this->lat= lat;
+	this->lon= lon;
+	this->visited = false;
+}
+
+/*
+ * Auxiliary function to add an outgoing edge to a vertex (this),
+ * with a given destination vertex (d) and edge weight (w).
+ */
+
+
+Node * Node::createBusVertex(){
+	Node* newVertex = new Node(this->id, this->lat, this->lon);
+	newVertex->isBusNow();
+
+	return newVertex;
+}
+
+
+void Node::isBusNow(){
+	this->bus = true;
+}
+
+
+void Node::addEdge(Node *d, double w) {
+	int id = rand() % 124567;
+	Aresta newAresta(id,d,w," ");
+	adj.push_back(newAresta);
+}
+
+
+bool Node::operator<(Node & node) const {
+	return this->dist < node.dist;
+}
+
+
+bool Node::operator==(Node & node) const {
+	return this->id == node.id;
+}
+
+
+int Node::getID() const {
+	return this->id;
+}
+
+
+double Node::getDist() const {
+	return this->dist;
+}
+
+
+Node* Node::getPath() const {
+	return this->path;
+}
+
+
+Node* Node::getRandomVertexDestination(){
+
+	int randomIndex = rand() % this->adj.size();
+
+	return this->adj.at(randomIndex).getDest();
+}
+
+Aresta::Aresta(int id, Node *d, double w, string n){
+	this->id = id;
+	this->dest = d;
+	this->weight = w;
+	this->name = n;
+}
+
+
+void Aresta::changeName(string n){
+	this->name = n;
+}
+
+
+Node* Aresta::getDest(){
+	return this->dest;
+}
+
+void Graph::printView(){
+		gv = new GraphViewer(1000,1000,false);
+		gv->createWindow(800, 800);
+
+		gv->defineEdgeCurved(false);
+
+		gv->defineEdgeColor("black");
+		gv->defineVertexIcon("emptyIcon.png");
+
+		for (unsigned int i = 0; i < this->getVertexSet().size(); i++) {
+
+			int id = this->getVertexSet().at(i)->getID();
+			int x = this->getVertexSet().at(i)->getLat();
+			int y = this->getVertexSet().at(i)->getLon();
+
+			gv->addNode(id, x * 5 + 50, -(y * 5) + 600);
+
+			if (this->getVertexSet().at(i)->getBus()) {
+
+				gv->setVertexIcon(id, "bus.png");
+			}
+
+
+
+		}
+
+		for (unsigned int i = 0; i < this->getVertexSet().size(); i++) {
+
+			int idOrigem = this->getVertexSet().at(i)->getID();
+
+			vector<Aresta> adj = this->getVertexSet().at(i)->getAdj();
+
+			for (unsigned int j = 0; j < adj.size(); j++) {
+
+				int idDestino = adj.at(j).getDest()->getID();
+
+				int idAresta = 1000 * idOrigem + idDestino;
+
+				/*
+				//string weight = std::to_string(adj.at(j).getWeight());
+				string weight = doubleToString(adj.at(j).getWeight());
+
+
+				if(weight.find(".") != string::npos){
+					for (size_t i = weight.find(".") + 2; i < weight.size(); i++)
+						weight.erase(i);
+				}
+				*/
+
+				gv->addEdge(idAresta, idOrigem, idDestino, EdgeType::DIRECTED);
+				//gv->setEdgeLabel(idAresta, weight);
+			}
+
+		}
+
+		gv->rearrange();
+}
+
+
+
+
+

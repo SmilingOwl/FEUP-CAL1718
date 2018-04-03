@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -167,9 +169,9 @@ template<class T>
 bool AuxiliarMethods::generateBusLines(T &g, int numberOfNodes){
 	if (numberOfNodes <= 1 || numberOfNodes>= g->VertexSet.size()) return false;
 
-	Vertex<T>* initialVertex = g->getRandomVertex();
-	Vertex<T>* initialBusVertex = initialVertex->createBusVertex();
-	Vertex<T> * nextVertex;
+	Node* initialVertex = g->getRandomVertex();
+	Node* initialBusVertex = initialVertex->createBusVertex();
+	Node* nextVertex;
 
 	initialBusVertex->isBusNow();
 	g->addVertex(initialBusVertex);

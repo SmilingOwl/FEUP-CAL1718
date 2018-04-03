@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include "Graph.h"
 #include "AuxiliarMethods.h"
@@ -5,11 +7,13 @@
 #include "graphviewer.h"
 #include <fstream>
 #include <iostream>
+#include "Visualizer.h"
 #include <sstream>
 
 void exercicio1();
 void exercicio2();
 void exercicio3();
+void teste();
 
 
 void exercicio1()
@@ -233,10 +237,29 @@ void exercicio3()
 	gv->rearrange();
 }
 
+void teste(){
+
+
+	Graph* graph = new Graph();
+
+	graph->addVertex(1, 10, 10);
+	graph->addVertex(2, 20, 20);
+	graph->addVertex(3,40,50);
+	graph->findVertex(1)->isBusNow();
+
+
+	graph->addEdge(1, 1, 2, 0);
+
+	graph->printView();
+
+
+}
+
 int main() {
 	//exercicio1();
-	exercicio2();
+	//exercicio2();
 	//exercicio3();
+	teste();
 	getchar();
 	return 0;
 }

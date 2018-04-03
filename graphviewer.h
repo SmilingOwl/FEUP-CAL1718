@@ -1,4 +1,4 @@
-﻿
+﻿#pragma once
 #define _GRAPH_VIEWER_H_
 
 #ifdef linux
