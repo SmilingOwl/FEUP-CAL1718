@@ -21,7 +21,9 @@ Graph* graph = new Graph();
 void loadNodes() {
 	string line;
 
-	ifstream file("b.txt");
+	ifstream file("a.txt");
+
+	int i = 0;
 
 	if (file.is_open()) {
 		while (getline(file, line)) {
@@ -30,8 +32,8 @@ void loadNodes() {
 			string data;
 
 			int id;
-			int lat;
-			int lon;
+			double lat;
+			double lon;
 			string name;
 
 			linestream >> id;
@@ -42,23 +44,28 @@ void loadNodes() {
 			linestream >> lon;
 
 			graph->addVertex(id,lat,lon);
+
+			printf("Nodes %d \n",i);
+			i++;
 		}
 
 		file.close();
+		return;
 	} else {
 		cerr << "n File not found!\n";
 	}
-	return;
+
 }
 
 void loadEdges(){
-	ifstream file("b.txt");
+	ifstream file("c.txt");
 
 	string line;
 
 	int idEdge = 0;
 	int idOrigin = 0;
 	int idFinal = 0;
+	int i = 0;
 
 	while (getline(file, line)) {
 		stringstream lineSs(line);
@@ -71,6 +78,7 @@ void loadEdges(){
 		getline(lineSs, string, ';');
 		//Destino
 		lineSs >> idFinal;
+
 
 		for(int i = 0; i< graph->edgeC.size(); i++){
 			if (graph->edgeC.at(i) == idEdge){
@@ -87,19 +95,26 @@ void loadEdges(){
 			}
 		}
 
+		printf("Edges %d \n",i);
+		i++;
+
 
 	}
 	file.close();
 
+	return;
+
 }
 
 void loadStreets(){
-	ifstream file("c.txt");
+	ifstream file("b.txt");
 	string line;
 
 	int idEdge = 0;
 	string nameOfStreet;
+	string twoWaysString;
 	bool twoWays = false;
+	int i = 0;
 
 	while(getline(file,line))
 	{
@@ -112,13 +127,26 @@ void loadStreets(){
 		lineSs >> nameOfStreet;
 		getline(lineSs, string, ';');
 		//direção
-		lineSs >> twoWays;
+		lineSs >> twoWaysString;
+
+		if(twoWaysString == "True"){
+			twoWays = true;
+		} else {
+			twoWays = false;
+		}
 
 		graph->edgeC.push_back(idEdge);
 		graph->nameC.push_back(nameOfStreet);
 		graph->twoWay.push_back(twoWays);
 
+		printf("Streets %d \n",i);
+		i++;
+
+
 	}
+	file.close();
+
+	return;
 
 }
 
@@ -132,15 +160,12 @@ void loadStreets(){
 
 void teste(){
 
-	loadStreets();
+	//loadStreets();
 	printf("streets done!");
 	loadNodes();
 	printf("nodes done!");
 	loadEdges();
 	printf("edges done!");
-
-
-
 
 
 	graph->printView();
