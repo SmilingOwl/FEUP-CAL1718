@@ -83,10 +83,10 @@ void loadEdges(){
 		for(int i = 0; i< graph->edgeC.size(); i++){
 			if (graph->edgeC.at(i) == idEdge){
 				if(graph->twoWay.at(i)){
-					graph->addEdge(idEdge,idOrigin, idFinal, 0);
-					graph->addEdge(idEdge*123,idFinal, idOrigin, 0);
+					graph->addEdge(idEdge,idOrigin, idFinal, 0,0);
+					graph->addEdge(idEdge*123,idFinal, idOrigin, 0,0);
 				} else {
-					graph->addEdge(idEdge,idOrigin, idFinal, 0);
+					graph->addEdge(idEdge,idOrigin, idFinal, 0,0);
 				}
 
 
@@ -160,7 +160,7 @@ void loadStreets(){
 
 void teste(){
 
-	//loadStreets();
+	loadStreets();
 	printf("streets done!");
 	loadNodes();
 	printf("nodes done!");
