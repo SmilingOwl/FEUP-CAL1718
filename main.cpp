@@ -21,7 +21,7 @@ Graph* graph = new Graph();
 void loadNodes() {
 	string line;
 
-	ifstream file("a.txt");
+	ifstream file("aSmall.txt");
 
 	int i = 0;
 
@@ -58,7 +58,7 @@ void loadNodes() {
 }
 
 void loadEdges(){
-	ifstream file("c.txt");
+	ifstream file("cSmall.txt");
 
 	string line;
 
@@ -107,7 +107,7 @@ void loadEdges(){
 }
 
 void loadStreets(){
-	ifstream file("b.txt");
+	ifstream file("bSmall.txt");
 	string line;
 
 	int idEdge = 0;

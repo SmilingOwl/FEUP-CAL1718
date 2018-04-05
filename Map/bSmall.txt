@@ -1,0 +1,13 @@
+12296423;Rua das Condominhas;True
+39920767;Rua do Estoril;False
+39921299;Rua de Leça;False
+39921304;Rua da Nazaré;False
+39922113;Rua de Miramar;False
+39922119;Rua da Ericeira;False
+39928988;Rua de Espinho;False
+39928989;Rua de Cascais;False
+39928994;Rua da Aguda;False
+39928995;Rua de Algés;False
+453823647;Largo de Mira;False
+453823653;Rua da Figueira da Foz;False
+548380494;Rua da Figueira da Foz;False
