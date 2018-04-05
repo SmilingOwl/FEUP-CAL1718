@@ -20,7 +20,12 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
-const double INTERCHANGE = 2;
+const double INTERCHANGE = 1; // km
+const int WALKVELOCITY = 5; //km per hour
+const int BUSVELOCITY = 18;
+const int METROVELOCITY= 28;
+const int BUSPRICE = 10; //cents per kilometer
+const int METROPRICE = 40;
 
 class Graph;
 class Node;
@@ -49,6 +54,7 @@ public:
 	vector<bool> twoWay;
 
 
+
 	void dijkstraShortestPath(int s);
 	void dijkstraShortestPathOld(int s);
 	void unweightedShortestPath(int s);
@@ -65,6 +71,20 @@ public:
 	void extractDataArestas();
 	void extractDataStreets();
 
+
+	vector<Node*>pathNodes;
+	vector<Aresta>pathAresta;
+
+
+	//algorithms
+	void updateWeights(int parameter); //0 - distance, 1 - time, 2 - price
+
+	bool getShortestPath(unsigned long long origin, unsigned long long destination);
+	bool getFastestPath(unsigned long long origin, unsigned long long destination);
+	bool getCheapestPath(unsigned long long origin, unsigned long long destination);
+
+
+
 };
 
 class Aresta {
@@ -72,6 +92,7 @@ class Aresta {
 	Node* dest;      // destination vertex
 	double weight;         // edge weight - distance in km
 	string name;
+	double distance;
 	int vehicle; // a la pata = 0, bus = 1, metro = 2;
 public:
 	Aresta(int id, Node *d, double w, string n, int vehicle);
@@ -81,6 +102,7 @@ public:
 	Node* getDest();
 	void setVehicle(int n);
 	int getVehicle();
+	void setWeight(int parameter); //0 - distance, 1 - time, 2 - price
 };
 
 class Node {
@@ -92,6 +114,7 @@ class Node {
 	double lat, lon;
 	Node *path = NULL;
 	int queueIndex = 0; 		// required by MutablePriorityQueue
+
 
 	bool processing = false;
 	void addEdge(Node *dest, double w, int vehicle);
@@ -112,6 +135,7 @@ public:
 	int getVehicle() const;
 	Node* getRandomVertexDestination();
 	vector<Aresta> getAdj();
+	void updateWeights(int parameter); //0 - distance, 1 - time, 2 - price
 
 	friend class Graph;
 	friend class MutablePriorityQueue<Node>;
@@ -374,6 +398,12 @@ double Graph::getPathDistance(int origin, int dest){
 
 }
 
+void Graph::updateWeights(int parameter){
+	for(unsigned int i = 0; i < this->getVertexSet().size(); i++){
+		this->getVertexSet().at(i)->updateWeights(parameter);
+	}
+}
+
 
 
 vector<Aresta> Node::getAdj(){
@@ -479,12 +509,19 @@ Node* Node::getRandomVertexDestination(){
 	return this->adj.at(randomIndex).getDest();
 }
 
+void Node::updateWeights(int parameter){
+	for (unsigned int i = 0; i < this->adj.size(); i++){
+		this->adj.at(i).setWeight(parameter);
+	}
+}
+
 Aresta::Aresta(int id, Node *d, double w, string n,int vehicle){
 	this->id = id;
 	this->dest = d;
-	this->weight = w;
+	this->distance = w;
 	this->name = n;
 	this->vehicle = vehicle;
+	this->weight = 0;
 }
 
 
@@ -503,6 +540,28 @@ void Aresta::setVehicle(int n){
 
 int Aresta::getVehicle(){
 	return this->vehicle;
+}
+
+void Aresta::setWeight(int parameter){
+	if (parameter == 0){
+		this->weight = distance;
+	} else if (parameter == 1){
+		if(this->vehicle == 0){
+			this->weight = distance / WALKVELOCITY;
+		} else if (this->vehicle == 1){
+			this->weight = distance / BUSVELOCITY;
+		} else if (this->vehicle == 2){
+			this->weight = distance / METROVELOCITY;
+		}
+	} else if (parameter == 2){
+		if(this->vehicle == 0){
+			this->weight = 0;
+		} else if (this->vehicle == 1){
+			this->weight = distance * BUSPRICE;
+		} else if (this->vehicle == 2){
+			this->weight = distance * METROPRICE;
+		}
+	}
 }
 
 void Graph::printView(){
@@ -561,6 +620,47 @@ void Graph::printView(){
 
 		gv->rearrange();
 }
+
+//TODO Atualizar pesos!!!
+
+bool Graph::getShortestPath(unsigned long long origin, unsigned long long destination){
+
+	this->updateWeights(0);
+
+	if (findVertex(origin) && findVertex(destination)){
+		pathNodes = getPath(origin, destination);
+		return 1;
+	} else {
+		return 0;
+	}
+
+}
+
+bool Graph::getFastestPath(unsigned long long origin, unsigned long long destination){
+
+	this->updateWeights(1);
+	if (findVertex(origin) && findVertex(destination)){
+		pathNodes = getPath(origin, destination);
+		return 1;
+	} else {
+		return 0;
+	}
+
+}
+
+bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destination){
+
+	this->updateWeights(2);
+	if (findVertex(origin) && findVertex(destination)){
+		pathNodes = getPath(origin, destination);
+		return 1;
+	} else {
+		return 0;
+	}
+
+}
+
+
 
 
 
