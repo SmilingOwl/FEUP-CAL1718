@@ -10,28 +10,53 @@
 #include "Visualizer.h"
 #include <sstream>
 
-
+const float MAX_LAT = 41.186;
+const float MIN_LAT = 41.13921;
+const float MAX_LON = -8.57601;
+const float MIN_LON = -8.65271;
+const int IMAGE_X = 2000;
+const int IMAGE_Y = 2464;
 
 void teste();
 void loadNodes();
 void loadEdges();
 void loadStreets();
+
 Graph* graph = new Graph();
 
-void loadNodes() {
+GraphViewer *gv;
+
+
+struct aresta {
+	unsigned long long id;
+	string nome;
+	bool is2Way;
+	aresta(unsigned long long i, string n, bool is2)
+	{
+		id = i;
+		nome = n;
+		is2Way = is2;
+	}
+};
+
+
+void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 	string line;
 
 	ifstream file("aSmall.txt");
 
-	int i = 0;
+	int i = 1;
 
 	if (file.is_open()) {
-		while (getline(file, line)) {
+		while (!file.eof()) {
+
+			getline(file,line);
 
 			std::stringstream linestream(line);
 			string data;
 
-			int id;
+			unsigned long long id;
+
 			double lat;
 			double lon;
 			string name;
@@ -43,31 +68,62 @@ void loadNodes() {
 			std::getline(linestream, data, ';');
 			linestream >> lon;
 
-			graph->addVertex(id,lat,lon);
+			nodes.push_back(make_pair(i,id));
 
-			printf("Nodes %d \n",i);
+			graph->addVertex(i,lat,lon);
+			double x = ( (lon - MIN_LON) * (IMAGE_Y) ) / (MAX_LON - MIN_LON);
+			double y = ((lat - MIN_LAT) * (IMAGE_X)) / (MAX_LAT - MIN_LAT);
+			gv->addNode(i , x,-y);
 			i++;
 		}
 
 		file.close();
+
 		return;
 	} else {
-		cerr << "n File not found!\n";
+		cerr << "\n File not found!\n";
 	}
+}
+/*
+void printNodes(){
+
+	double lat, lon,x,y;
+	for(unsigned int i = 0; i< graph->getVertexSet().size(); i++){
+
+		lon = graph->getVertexSet().at(i)->getLon();
+		lat = graph->getVertexSet().at(i)->getLat();
+		x = ( (lon - MIN_LON) * (IMAGE_Y) ) / (MAX_LON - MIN_LON);
+		y = ((lat - MIN_LAT) * (IMAGE_X)) / (MAX_LAT - MIN_LAT);
+
+		gv->addNode(i+500 , x,-y);
+		gv->setVertexIcon(i+500, "bus.png");
+
+	}
+
+
 
 }
 
-void loadEdges(){
+*/
+
+void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<aresta> &edges){
 	ifstream file("cSmall.txt");
 
 	string line;
 
-	int idEdge = 0;
-	int idOrigin = 0;
-	int idFinal = 0;
-	int i = 0;
+	unsigned long long idEdge = 0;
+	unsigned long long idOrigin = 0;
+	unsigned long long idFinal = 0;
+	int id = 1;
+	if(file.fail())
+	{
+		cerr << "\nFile not found!\n";
+	}
+	while (!file.eof())
+	{
 
-	while (getline(file, line)) {
+		getline(file, line);
+
 		stringstream lineSs(line);
 		string string;
 		//ID
@@ -79,24 +135,50 @@ void loadEdges(){
 		//Destino
 		lineSs >> idFinal;
 
+		for(unsigned int i = 0; i < edges.size(); i++) // estava 0
+		{
 
-		for(unsigned int i = 0; i< graph->edgeC.size(); i++){
-			if (graph->edgeC.at(i) == idEdge){
-				if(graph->twoWay.at(i)){
-					graph->addEdge(idEdge,idOrigin, idFinal, 0,0);
-					graph->addEdge(idEdge*123,idFinal, idOrigin, 0,0);
-				} else {
-					graph->addEdge(idEdge,idOrigin, idFinal, 0,0);
+			if(edges.at(i).id == idEdge)
+			{
+				int idIntOri = 0;
+				int idIntDest = 0;
+
+				for(auto n : nodes)
+				{
+					if(n.second == idOrigin)
+					{
+						idIntOri = n.first;
+						if(idIntDest != 0)
+							break;
+					}
+					if(n.second == idFinal)
+					{
+						idIntDest = n.first;
+						if(idIntOri != 0)
+							break;
+					}
 				}
 
 
+				if(idIntOri != 0 && idIntDest != 0)
+				{
+					graph->addEdge(id,idIntOri, idIntDest,0,0);
+					gv->addEdge(id,idIntOri,idIntDest,EdgeType::DIRECTED);
+					gv->setEdgeColor(id,RED);
+					gv->setEdgeLabel(id,edges.at(i).nome);
 
+					if(edges.at(i).is2Way){
+						id++;
+						graph->addEdge(id,idIntDest, idIntOri,0,0);
+						gv->addEdge(id,idIntDest,idIntOri,EdgeType::DIRECTED);
+						gv->setEdgeColor(id,BLUE);
+						gv->setEdgeLabel(id,edges.at(i).nome);
+					}
+				}
 				break;
 			}
 		}
-
-		printf("Edges %d \n",i);
-		i++;
+		id++;
 
 
 	}
@@ -106,43 +188,34 @@ void loadEdges(){
 
 }
 
-void loadStreets(){
+void loadStreets(vector<aresta> &edges){
 	ifstream file("bSmall.txt");
 	string line;
 
-	int idEdge = 0;
+	unsigned long long idEdge = 0;
 	string nameOfStreet;
 	string twoWaysString;
 	bool twoWays = false;
-	int i = 0;
 
-	while(getline(file,line))
+	if(file.fail())
 	{
-		stringstream lineSs(line);
-		string string;
-		//ID
-		lineSs >> idEdge;
-		getline(lineSs, string, ';');
-		//nome da rua
-		lineSs >> nameOfStreet;
-		getline(lineSs, string, ';');
-		//direção
-		lineSs >> twoWaysString;
+		cerr << "\nFile not Found!\n";
+	}
+	while(!file.eof())
+	{
+		string idd;
+		getline(file,idd,';');
+		idEdge = stoul(idd);
 
+		getline(file,nameOfStreet,';');
+		getline(file,twoWaysString);
 		if(twoWaysString == "True"){
 			twoWays = true;
 		} else {
 			twoWays = false;
 		}
 
-		graph->edgeC.push_back(idEdge);
-		graph->nameC.push_back(nameOfStreet);
-		graph->twoWay.push_back(twoWays);
-
-		printf("Streets %d \n",i);
-		i++;
-
-
+		edges.push_back(aresta(idEdge,nameOfStreet,twoWays));
 	}
 	file.close();
 
@@ -150,26 +223,40 @@ void loadStreets(){
 
 }
 
-
-
-
-
-
-
-
-
 void teste(){
 
-	loadStreets();
+
+
+	gv = new GraphViewer(500,500,false);
+	gv->createWindow(800, 800);
+
+	gv->defineEdgeCurved(false);
+	gv->defineEdgeColor("black");
+	gv->defineVertexIcon("emptyIcon.png");
+
+
+	vector<pair<int,unsigned long long>> nodes;
+	vector<aresta> edges;
+
+	loadNodes(nodes);
+
+	printf("nodes done!\n");
+
+	loadStreets(edges);
 	printf("streets done!");
-	loadNodes();
-	printf("nodes done!");
-	loadEdges();
+
+	loadEdges(nodes,edges);
 	printf("edges done!");
 
 
-	graph->printView();
 
+
+
+	//system("pause");
+
+	//graph->printView();
+
+	//gv->rearrange();
 
 }
 
