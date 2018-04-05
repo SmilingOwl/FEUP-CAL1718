@@ -80,7 +80,7 @@ void loadEdges(){
 		lineSs >> idFinal;
 
 
-		for(int i = 0; i< graph->edgeC.size(); i++){
+		for(unsigned int i = 0; i< graph->edgeC.size(); i++){
 			if (graph->edgeC.at(i) == idEdge){
 				if(graph->twoWay.at(i)){
 					graph->addEdge(idEdge,idOrigin, idFinal, 0,0);

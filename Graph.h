@@ -28,17 +28,21 @@ class Aresta;
 
 class Graph {
 	vector<Node *> vertexSet;    // vertex set
+	vector<Node *> vertexSetBus;
+	vector<Node *> vertexSetMetro;
 	GraphViewer *gv;
 
 public:
 	Node *findVertex(int id) const;
 	Node *getRandomVertex();
+	Node *getRandomBusVertex();
 	bool addVertex(int id, int lat, int lon);
 	bool addVertex(Node* n);
 	bool addEdge(int id,int sourc, int dest, double w, int vehicle);
 
 	int getNumVertex() const;
 	vector<Node *> getVertexSet() const;
+	vector<Node *> getVertexSetBus() const;
 	double getDistanceVertex(Node* n1, Node* n2);
 	vector<int> edgeC;
 	vector<string> nameC;
@@ -53,6 +57,7 @@ public:
 	double getPathDistance(int origin, int dest);
 
 	bool generateBusLines(int numberOfNodes);
+	bool generateMetroLine(int numberOfNodes);
 
 	void printView();
 
@@ -82,7 +87,8 @@ class Node {
 	int id;
 	vector<Aresta> adj;  // outgoing edges
 	bool visited;          // auxiliary field
-	bool bus = false;
+	bool bus;
+	bool metro;
 	double dist = 0;
 	double lat, lon;
 	Node *path = NULL;
@@ -94,7 +100,9 @@ class Node {
 public:
 	Node(int id,double lat, double lon);
 	Node * createBusVertex();
+	Node * createMetroVertex();
 	void isBusNow();
+	void isMetroNow();
 	bool operator<(Node & vertex) const; // required by MutablePriorityQueue
 	bool operator==(Node & vertex) const;
 	int getID() const;
@@ -103,6 +111,7 @@ public:
 	double getLat() const;
 	double getLon() const;
 	bool getBus() const;
+	bool getMetro() const;
 	Node* getRandomVertexDestination();
 	vector<Aresta> getAdj();
 
@@ -136,7 +145,9 @@ int Graph::getNumVertex() const {
 	public:
 		Node(int id,double lat, double lon);
 		Node * createBusVertex();
+		Node * createMetroVertex();
 		void isBusNow();
+		void isMetroNow();
 		bool operator<(Node & vertex) const; // required by MutablePriorityQueue
 		bool operator==(Node & vertex) const;
 		int getID() const;
@@ -165,6 +176,10 @@ vector<Node *> Graph::getVertexSet() const {
 	return vertexSet;
 }
 
+vector<Node *> Graph::getVertexSetBus() const{
+	return vertexSetBus;
+}
+
 /*
  * Auxiliary function to find a vertex with a given content.
  */
@@ -181,6 +196,12 @@ Node* Graph::getRandomVertex(){
 	srand(time(NULL));
 	int r = rand() % vertexSet.size();
 	return vertexSet.at(r);
+}
+
+Node* Graph::getRandomBusVertex(){
+	srand(time(NULL));
+	int r = rand() % vertexSetBus.size();
+	return vertexSetBus.at(r);
 }
 
 /*
@@ -242,10 +263,16 @@ bool Graph::generateBusLines(int numberOfNodes){
 	this->addVertex(initialBusVertex);
 	this->addEdge(rand()%10000000,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
 	this->addEdge(rand()%10000000,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
-	for (unsigned int i = 1; i < numberOfNodes; i++){
+	for (unsigned int i = 1; i < numberOfNodes -1; i++){
+
+
+
 
 		nextVertex = initialVertex->getRandomVertexDestination();
 		nextBusVertex =  nextVertex->createBusVertex();
+
+		this->vertexSetBus.push_back(initialBusVertex);
+
 
 		this->addVertex(nextBusVertex);
 		this->addEdge(rand()%10000000,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
@@ -259,6 +286,49 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 
 	}
+
+	this->vertexSetBus.push_back(nextBusVertex);
+
+
+}
+
+bool Graph::generateMetroLine(int numberOfNodes){
+	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
+
+	Node* initialBusVertex = this->getRandomBusVertex();
+	Node* initialMetroVertex = initialBusVertex->createMetroVertex();
+	Node* nextBusVertex;
+	Node* nextMetroVertex;
+
+
+	this->addVertex(initialMetroVertex);
+	this->addEdge(rand()%10000000,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	this->addEdge(rand()%10000000,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
+	for (unsigned int i = 1; i < numberOfNodes -1; i++){
+
+		this->vertexSetMetro.push_back(initialMetroVertex);
+
+
+		nextBusVertex = initialBusVertex->getRandomVertexDestination();
+		nextMetroVertex =  nextBusVertex->createMetroVertex();
+
+
+
+
+		this->addVertex(nextMetroVertex);
+		this->addEdge(rand()%10000000,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
+		this->addEdge(rand()%10000000,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+
+		this->addEdge(rand()%10000000,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->addEdge(rand()%10000000+1,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+
+		initialBusVertex = nextBusVertex;
+		initialMetroVertex = nextMetroVertex;
+
+
+	}
+
+	this->vertexSetMetro.push_back(nextMetroVertex);
 
 
 }
@@ -362,6 +432,10 @@ bool Node::getBus() const{
 	return this->bus;
 }
 
+bool Node::getMetro() const {
+	return this->metro;
+}
+
 
 
 Node::Node(int id,double lat, double lon) {
@@ -369,6 +443,8 @@ Node::Node(int id,double lat, double lon) {
 	this->lat= lat;
 	this->lon= lon;
 	this->visited = false;
+	this->bus = false;
+	this->metro = false;
 }
 
 /*
@@ -385,9 +461,22 @@ Node * Node::createBusVertex(){
 	return newVertex;
 }
 
+Node * Node::createMetroVertex(){
+	Node* newVertex = new Node((this->id)%1000, this->lat, this->lon);
+	newVertex->isMetroNow();
+
+	return newVertex;
+}
+
 
 void Node::isBusNow(){
 	this->bus = true;
+}
+
+void Node::isMetroNow(){
+
+	this->metro = true;
+
 }
 
 
@@ -474,11 +563,10 @@ void Graph::printView(){
 			gv->addNode(id, x , y);
 
 			if (this->getVertexSet().at(i)->getBus()) {
-
 				gv->setVertexIcon(id, "bus.png");
+			} else if (this->getVertexSet().at(i)->getMetro()){
+				gv->setVertexIcon(id,"metro.png");
 			}
-
-
 
 		}
 
