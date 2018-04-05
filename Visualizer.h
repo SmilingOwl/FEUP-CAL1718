@@ -42,7 +42,7 @@ void Visualizer::printView(Graph &g){
 
 		gv->addNode(id, x * 5 + 50, -(y * 5) + 600);
 
-		if (g.getVertexSet().at(i)->getBus()) {
+		if (g.getVertexSet().at(i)->getVehicle() == 1) {
 
 			gv->setVertexIcon(id, "bus.png");
 		}

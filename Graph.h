@@ -36,7 +36,7 @@ public:
 	Node *findVertex(int id) const;
 	Node *getRandomVertex();
 	Node *getRandomBusVertex();
-	bool addVertex(int id, int lat, int lon);
+	bool addVertex(int id, double lat, double lon, int vehicle);
 	bool addVertex(Node* n);
 	bool addEdge(int id,int sourc, int dest, double w, int vehicle);
 
@@ -87,8 +87,7 @@ class Node {
 	int id;
 	vector<Aresta> adj;  // outgoing edges
 	bool visited;          // auxiliary field
-	bool bus;
-	bool metro;
+	int vehicle;
 	double dist = 0;
 	double lat, lon;
 	Node *path = NULL;
@@ -98,7 +97,7 @@ class Node {
 	void addEdge(Node *dest, double w, int vehicle);
 
 public:
-	Node(int id,double lat, double lon);
+	Node(int id,double lat, double lon, int vehicle);
 	Node * createBusVertex();
 	Node * createMetroVertex();
 	void isBusNow();
@@ -110,8 +109,7 @@ public:
 	Node *getPath() const;
 	double getLat() const;
 	double getLon() const;
-	bool getBus() const;
-	bool getMetro() const;
+	int getVehicle() const;
 	Node* getRandomVertexDestination();
 	vector<Aresta> getAdj();
 
@@ -129,42 +127,7 @@ public:
 
 
 int Graph::getNumVertex() const {
-	return vertexSet.size();class Node {
-		int id;
-		vector<Aresta> adj;  // outgoing edges
-		bool visited;          // auxiliary field
-		bool bus = false;
-		double dist = 0;
-		double lat, lon;
-		Node *path = NULL;
-		int queueIndex = 0; 		// required by MutablePriorityQueue
-
-		bool processing = false;
-		void addEdge(Node *dest, double w);
-
-	public:
-		Node(int id,double lat, double lon);
-		Node * createBusVertex();
-		Node * createMetroVertex();
-		void isBusNow();
-		void isMetroNow();
-		bool operator<(Node & vertex) const; // required by MutablePriorityQueue
-		bool operator==(Node & vertex) const;
-		int getID() const;
-		double getDist() const;
-		Node *getPath() const;
-		double getLat() const;
-		double getLon() const;
-		bool getBus() const;
-		Node* getRandomVertexDestination();
-		vector<Aresta> getAdj();
-
-
-		friend class MutablePriorityQueue;
-		friend class Graph;
-
-
-	};
+	return vertexSet.size();
 }
 
 double Graph::getDistanceVertex(Node* n1, Node* n2){
@@ -209,14 +172,14 @@ Node* Graph::getRandomBusVertex(){
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
 
-bool Graph::addVertex(int id, int lat, int lon) {
+bool Graph::addVertex(int id, double lat, double lon, int vehicle) {
 	/*
 	while ( findVertex(id) != NULL){
 		id++;
 	}
 
 	*/
-	vertexSet.push_back(new Node(id, lat, lon));
+	vertexSet.push_back(new Node(id, lat, lon, vehicle));
 	return true;
 }
 
@@ -428,23 +391,20 @@ double Node::getLon() const{
 }
 
 
-bool Node::getBus() const{
-	return this->bus;
-}
-
-bool Node::getMetro() const {
-	return this->metro;
+int Node::getVehicle() const{
+	return this->vehicle;
 }
 
 
 
-Node::Node(int id,double lat, double lon) {
+
+
+Node::Node(int id,double lat, double lon, int vehicle) {
 	this->id = id;
 	this->lat= lat;
 	this->lon= lon;
 	this->visited = false;
-	this->bus = false;
-	this->metro = false;
+	this->vehicle = vehicle;
 }
 
 /*
@@ -454,7 +414,7 @@ Node::Node(int id,double lat, double lon) {
 
 
 Node * Node::createBusVertex(){
-	Node* newVertex = new Node((this->id)%10000, this->lat, this->lon);
+	Node* newVertex = new Node((this->id)%10000, this->lat, this->lon,1);
 	newVertex->isBusNow();
 
 
@@ -462,7 +422,7 @@ Node * Node::createBusVertex(){
 }
 
 Node * Node::createMetroVertex(){
-	Node* newVertex = new Node((this->id)%1000, this->lat, this->lon);
+	Node* newVertex = new Node((this->id)%1000, this->lat, this->lon,1);
 	newVertex->isMetroNow();
 
 	return newVertex;
@@ -470,12 +430,12 @@ Node * Node::createMetroVertex(){
 
 
 void Node::isBusNow(){
-	this->bus = true;
+	this->vehicle = 1;
 }
 
 void Node::isMetroNow(){
 
-	this->metro = true;
+	this->vehicle = 2;
 
 }
 
@@ -562,9 +522,9 @@ void Graph::printView(){
 
 			gv->addNode(id, x , y);
 
-			if (this->getVertexSet().at(i)->getBus()) {
+			if (this->getVertexSet().at(i)->getVehicle() == 1) {
 				gv->setVertexIcon(id, "bus.png");
-			} else if (this->getVertexSet().at(i)->getMetro()){
+			} else if (this->getVertexSet().at(i)->getVehicle() == 2){
 				gv->setVertexIcon(id,"metro.png");
 			}
 

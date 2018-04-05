@@ -60,6 +60,7 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 			double lat;
 			double lon;
 			string name;
+			int vehicle;
 
 			linestream >> id;
 
@@ -67,10 +68,12 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 			linestream >> lat;
 			std::getline(linestream, data, ';');
 			linestream >> lon;
+			std::getline(linestream, data, ';');
+			linestream >> vehicle;
 
 			nodes.push_back(make_pair(i,id));
 
-			graph->addVertex(i,lat,lon);
+			graph->addVertex(i,lat,lon,vehicle);
 			double x = ( (lon - MIN_LON) * (IMAGE_Y) ) / (MAX_LON - MIN_LON);
 			double y = ((lat - MIN_LAT) * (IMAGE_X)) / (MAX_LAT - MIN_LAT);
 			gv->addNode(i , x,-y);
