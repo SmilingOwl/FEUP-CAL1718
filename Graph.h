@@ -681,7 +681,7 @@ void Graph::printView(){
 		gv->rearrange();
 }
 
-//TODO Atualizar pesos!!!
+
 
 bool Graph::getShortestPath(unsigned long long origin, unsigned long long destination){
 
@@ -768,7 +768,7 @@ double Graph::pricePath(){
 
 }
 
-double Graph::printPrice(){
+void Graph::printPrice(){
 	double totalPrice = this->pricePath();
 
 	printf("%d €",totalPrice);
