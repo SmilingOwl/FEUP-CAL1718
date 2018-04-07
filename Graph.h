@@ -596,7 +596,7 @@ double Aresta::getDistance(){
  * parameter = 1 -> o peso é o tempo
  * parameter = 2 -> o peso é o custo (NOT WORKING)
  * parameter = 3 -> bus é o transporte preferido  //TODO
- * parameter = 4 -> metro é o transporte preferido  // TODO
+ * parameter = 4 -> metro é o transporte preferido
  *
  *
  *
@@ -615,11 +615,27 @@ void Aresta::setWeight(int parameter){
 		}
 	} else if (parameter == 2){
 		if(this->vehicle == 0){
-			this->weight = 0;
+			this->weight = 5;
 		} else if (this->vehicle == 1){
 			this->weight = distance * BUSPRICE;
 		} else if (this->vehicle == 2){
 			this->weight = distance * METROPRICE;
+		}
+	} else if (parameter == 3){
+		if(this->vehicle == 0){
+			this->weight = 20;
+		} else if (this->vehicle == 1){
+			this->weight = 1;
+		} else if (this->vehicle == 2){
+			this->weight = 10;
+		}
+	} else if (parameter == 4){
+		if(this->vehicle == 0){
+			this->weight = 20;
+		} else if (this->vehicle == 1){
+			this->weight = 10;
+		} else if (this->vehicle == 2){
+			this->weight = 1;
 		}
 	}
 }
