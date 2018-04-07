@@ -30,6 +30,15 @@ const int METROPRICE = 40;
 class Graph;
 class Node;
 class Aresta;
+class IDs;
+
+class IDs{
+public:
+	static unsigned long long idEdges = 1;
+	static unsigned long long idNodes = 1;
+};
+
+
 
 class Graph {
 	vector<Node *> vertexSet;    // vertex set
@@ -37,13 +46,15 @@ class Graph {
 	vector<Node *> vertexSetMetro;
 	GraphViewer *gv;
 
+
+
 public:
-	Node *findVertex(int id) const;
+	Node *findVertex(unsigned long long id) const;
 	Node *getRandomVertex();
 	Node *getRandomBusVertex();
-	bool addVertex(int id, double lat, double lon, int vehicle);
+	bool addVertex(unsigned long long id, double lat, double lon, int vehicle);
 	bool addVertex(Node* n);
-	bool addEdge(int id,int sourc, int dest, double w, int vehicle);
+	bool addEdge(unsigned long long id,int sourc, int dest, double w, int vehicle);
 
 	int getNumVertex() const;
 	vector<Node *> getVertexSet() const;
@@ -59,7 +70,7 @@ public:
 	void dijkstraShortestPathOld(int s);
 	void unweightedShortestPath(int s);
 	void bellmanFordShortestPath(int s);
-	vector<int> getPath(int origin,int dest);
+	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
 	double getPathDistance(int origin, int dest);
 
 	bool generateBusLines(int numberOfNodes);
@@ -73,7 +84,7 @@ public:
 
 
 	vector<Node*>pathNodes;
-	vector<Aresta>pathAresta;
+	vector<Aresta>pathArestas;
 
 
 	//algorithms
@@ -83,30 +94,38 @@ public:
 	bool getFastestPath(unsigned long long origin, unsigned long long destination);
 	bool getCheapestPath(unsigned long long origin, unsigned long long destination);
 
+	void generatePathArestas();
+
+	void printStreetPath();
+	double pricePath();
+	void printPrice();
 
 
 };
 
 class Aresta {
-	int id;
+	unsigned long long id;
 	Node* dest;      // destination vertex
 	double weight;         // edge weight - distance in km
 	string name;
 	double distance;
 	int vehicle; // a la pata = 0, bus = 1, metro = 2;
+
 public:
-	Aresta(int id, Node *d, double w, string n, int vehicle);
+	Aresta(unsigned long long id, Node *d, double w, string n, int vehicle);
 	friend class Graph;
 	friend class Node;
+	string getName();
 	void changeName(string n);
 	Node* getDest();
 	void setVehicle(int n);
 	int getVehicle();
+	double getDistance();
 	void setWeight(int parameter); //0 - distance, 1 - time, 2 - price
 };
 
 class Node {
-	int id;
+	unsigned long long id;
 	vector<Aresta> adj;  // outgoing edges
 	bool visited;          // auxiliary field
 	int vehicle;
@@ -116,18 +135,19 @@ class Node {
 	int queueIndex = 0; 		// required by MutablePriorityQueue
 
 
+
 	bool processing = false;
 	void addEdge(Node *dest, double w, int vehicle);
 
 public:
-	Node(int id,double lat, double lon, int vehicle);
+	Node(unsigned long long id,double lat, double lon, int vehicle);
 	Node * createBusVertex();
 	Node * createMetroVertex();
 	void isBusNow();
 	void isMetroNow();
 	bool operator<(Node & vertex) const; // required by MutablePriorityQueue
 	bool operator==(Node & vertex) const;
-	int getID() const;
+	unsigned long long getID() const;
 	double getDist() const;
 	Node *getPath() const;
 	double getLat() const;
@@ -171,7 +191,7 @@ vector<Node *> Graph::getVertexSetBus() const{
  * Auxiliary function to find a vertex with a given content.
  */
 
-Node* Graph::findVertex(int id) const {
+Node* Graph::findVertex(unsigned long long id) const {
 	for (auto v : vertexSet)
 		if (v->id == id)
 			return v;
@@ -196,7 +216,7 @@ Node* Graph::getRandomBusVertex(){
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
 
-bool Graph::addVertex(int id, double lat, double lon, int vehicle) {
+bool Graph::addVertex(unsigned long long id, double lat, double lon, int vehicle) {
 	/*
 	while ( findVertex(id) != NULL){
 		id++;
@@ -222,7 +242,7 @@ bool Graph::addVertex(Node* n){
  * Returns true if successful, and false if the source or destination vertex does not exist.
  */
 
-bool Graph::addEdge(int id,int sourc, int dest, double w, int vehicle) {
+bool Graph::addEdge(unsigned long long id,int sourc, int dest, double w, int vehicle) {
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
 	while (v1 == NULL){
@@ -239,6 +259,8 @@ bool Graph::addEdge(int id,int sourc, int dest, double w, int vehicle) {
 }
 
 bool Graph::generateBusLines(int numberOfNodes){
+	IDs ids = new IDs();
+
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSet().size()) return false;
 
 	Node* initialVertex = this->getRandomVertex();
@@ -248,8 +270,10 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 
 	this->addVertex(initialBusVertex);
-	this->addEdge(rand()%10000000,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
-	this->addEdge(rand()%10000000,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	this->addEdge(ids.idEdges,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
+	ids.idEdges++;
+	this->addEdge(ids.idEdges,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	ids.idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
 
 
@@ -262,11 +286,15 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 
 		this->addVertex(nextBusVertex);
-		this->addEdge(rand()%10000000,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
-		this->addEdge(rand()%10000000,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
+		this->addEdge(ids.idEdges,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		ids.idEdges++;
+		this->addEdge(ids.idEdges,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
+		ids.idEdges++;
 
-		this->addEdge(rand()%10000000,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
-		this->addEdge(rand()%10000000+1,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->addEdge(ids.idEdges,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		ids.idEdges++;
+		this->addEdge(ids.idEdges,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		ids.idEdges++;
 
 		initialVertex = nextVertex;
 		initialBusVertex = nextBusVertex;
@@ -280,6 +308,7 @@ bool Graph::generateBusLines(int numberOfNodes){
 }
 
 bool Graph::generateMetroLine(int numberOfNodes){
+	IDs ids = new IDs();
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
 
 	Node* initialBusVertex = this->getRandomBusVertex();
@@ -289,8 +318,10 @@ bool Graph::generateMetroLine(int numberOfNodes){
 
 
 	this->addVertex(initialMetroVertex);
-	this->addEdge(rand()%10000000,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
-	this->addEdge(rand()%10000000,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
+	this->addEdge(ids.idEdges,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	ids.idEdges++;
+	this->addEdge(ids.idEdges,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
+	ids.idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
 
 		this->vertexSetMetro.push_back(initialMetroVertex);
@@ -303,11 +334,15 @@ bool Graph::generateMetroLine(int numberOfNodes){
 
 
 		this->addVertex(nextMetroVertex);
-		this->addEdge(rand()%10000000,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
-		this->addEdge(rand()%10000000,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		this->addEdge(ids.idEdges,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
+		ids.idEdges++;
+		this->addEdge(ids.idEdges,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		ids.idEdges++;
 
-		this->addEdge(rand()%10000000,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
-		this->addEdge(rand()%10000000+1,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->addEdge(ids.idEdges,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		ids.idEdges++;
+		this->addEdge(ids.idEdges,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		ids.idEdges++;
 
 		initialBusVertex = nextBusVertex;
 		initialMetroVertex = nextMetroVertex;
@@ -363,9 +398,9 @@ void Graph::dijkstraShortestPath(int origin) {
 
 
 
-vector<int> Graph::getPath(int origin,int dest){
+vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned long long dest){
 
-		vector<int> res;
+		vector<unsigned long long> res;
 		this->dijkstraShortestPath(origin);
 		Node* currentVertex = this->findVertex(dest);
 
@@ -429,7 +464,7 @@ int Node::getVehicle() const{
 
 
 
-Node::Node(int id,double lat, double lon, int vehicle) {
+Node::Node(unsigned long long id,double lat, double lon, int vehicle) {
 	this->id = id;
 	this->lat= lat;
 	this->lon= lon;
@@ -444,7 +479,10 @@ Node::Node(int id,double lat, double lon, int vehicle) {
 
 
 Node * Node::createBusVertex(){
-	Node* newVertex = new Node((this->id)%10000, this->lat, this->lon,1);
+	IDs ids = new IDs();
+
+	Node* newVertex = new Node(ids.idNodes, this->lat, this->lon,1);
+	ids.idNodes++;
 	newVertex->isBusNow();
 
 
@@ -452,7 +490,9 @@ Node * Node::createBusVertex(){
 }
 
 Node * Node::createMetroVertex(){
-	Node* newVertex = new Node((this->id)%1000, this->lat, this->lon,1);
+	IDs ids = new IDs();
+	Node* newVertex = new Node(ids.idNodes, this->lat, this->lon,1);
+	ids.idNodes++;
 	newVertex->isMetroNow();
 
 	return newVertex;
@@ -487,7 +527,7 @@ bool Node::operator==(Node & node) const {
 }
 
 
-int Node::getID() const {
+unsigned long long Node::getID() const {
 	return this->id;
 }
 
@@ -515,13 +555,17 @@ void Node::updateWeights(int parameter){
 	}
 }
 
-Aresta::Aresta(int id, Node *d, double w, string n,int vehicle){
+Aresta::Aresta(unsigned long long id, Node *d, double w, string n,int vehicle){
 	this->id = id;
 	this->dest = d;
 	this->distance = w;
 	this->name = n;
 	this->vehicle = vehicle;
 	this->weight = 0;
+}
+
+string Aresta::getName(){
+	return this->name;
 }
 
 
@@ -541,6 +585,22 @@ void Aresta::setVehicle(int n){
 int Aresta::getVehicle(){
 	return this->vehicle;
 }
+
+double Aresta::getDistance(){
+	return this->distance;
+}
+
+/*
+ * setWeight (int parameter)
+ * parameter = 0 -> o peso é a distancia
+ * parameter = 1 -> o peso é o tempo
+ * parameter = 2 -> o peso é o custo (NOT WORKING)
+ * parameter = 3 -> bus é o transporte preferido  //TODO
+ * parameter = 4 -> metro é o transporte preferido  // TODO
+ *
+ *
+ *
+ */
 
 void Aresta::setWeight(int parameter){
 	if (parameter == 0){
@@ -627,6 +687,8 @@ bool Graph::getShortestPath(unsigned long long origin, unsigned long long destin
 
 	this->updateWeights(0);
 
+	pathNodes.clear();
+
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
 		return 1;
@@ -639,6 +701,9 @@ bool Graph::getShortestPath(unsigned long long origin, unsigned long long destin
 bool Graph::getFastestPath(unsigned long long origin, unsigned long long destination){
 
 	this->updateWeights(1);
+
+	pathNodes.clear();
+
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
 		return 1;
@@ -660,6 +725,54 @@ bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destin
 
 }
 
+//run this after generated pathNodes
+void Graph::generatePathArestas(){
+	for (unsigned int i = 0; i < this->pathNodes - 1;i++){
+		Node* currentVertex = findVertex(this->pathNodes.at(i)->getID());
+		Node* nextVertex = findVertex(this->pathNodes.at(i+1)->getID());
+		for (unsigned int n = 0; n < currentVertex->getAdj().size(); n++){
+			if (currentVertex->getAdj().at(i).dest == nextVertex){
+				this->pathArestas.push_back(currentVertex->getAdj().at(i));
+				break;
+			}
+		}
+
+	}
+
+}
+
+void Graph::printStreetPath(){
+	vector<string> streets;
+	for (unsigned int i = 0; i < this->pathArestas.size();i++){
+		streets.push_back(pathArestas.at(i).getName());
+	}
+
+	for (int it = 0; it < streets.size(); it++){
+		printf("%d: %s \n",it,streets.at(it));
+	}
+
+}
+
+
+double Graph::pricePath(){
+	double totalPrice = 0;
+	for (unsigned int i = 0; i < this->pathArestas.size(); i++){
+		if(pathArestas.at(i).getVehicle() == 1){
+			totalPrice += pathArestas.at(i).getDistance() * BUSPRICE;
+		} else if(pathArestas.at(i).getVehicle() == 2){
+			totalPrice += pathArestas.at(i).getDistance() * METROPRICE;
+		}
+	}
+
+	return totalPrice;
+
+}
+
+double Graph::printPrice(){
+	double totalPrice = this->pricePath();
+
+	printf("%d €",totalPrice);
+}
 
 
 
