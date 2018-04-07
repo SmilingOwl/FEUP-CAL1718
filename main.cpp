@@ -1,4 +1,4 @@
-#pragma once
+
 
 #include <iostream>
 #include "Graph.h"
@@ -18,9 +18,7 @@ const int IMAGE_X = 2000;
 const int IMAGE_Y = 2464;
 
 void teste();
-void loadNodes();
-void loadEdges();
-void loadStreets();
+
 
 Graph* graph = new Graph();
 
@@ -49,6 +47,7 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 
 	if (file.is_open()) {
 		while (!file.eof()) {
+			printf("node");
 
 			getline(file,line);
 
@@ -87,27 +86,7 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 		cerr << "\n File not found!\n";
 	}
 }
-/*
-void printNodes(){
 
-	double lat, lon,x,y;
-	for(unsigned int i = 0; i< graph->getVertexSet().size(); i++){
-
-		lon = graph->getVertexSet().at(i)->getLon();
-		lat = graph->getVertexSet().at(i)->getLat();
-		x = ( (lon - MIN_LON) * (IMAGE_Y) ) / (MAX_LON - MIN_LON);
-		y = ((lat - MIN_LAT) * (IMAGE_X)) / (MAX_LAT - MIN_LAT);
-
-		gv->addNode(i+500 , x,-y);
-		gv->setVertexIcon(i+500, "bus.png");
-
-	}
-
-
-
-}
-
-*/
 
 void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<aresta> &edges){
 	ifstream file("cSmall.txt");
@@ -138,7 +117,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 		//Destino
 		lineSs >> idFinal;
 
-		for(unsigned int i = 0; i < edges.size(); i++) // estava 0
+		for(unsigned int i = 0; i < edges.size(); i++)
 		{
 
 			if(edges.at(i).id == idEdge)
@@ -208,6 +187,7 @@ void loadStreets(vector<aresta> &edges){
 	{
 		string idd;
 		getline(file,idd,';');
+
 		idEdge = stoul(idd);
 
 		getline(file,nameOfStreet,';');
@@ -227,9 +207,6 @@ void loadStreets(vector<aresta> &edges){
 }
 
 void teste(){
-
-
-
 	gv = new GraphViewer(500,500,false);
 	gv->createWindow(800, 800);
 
@@ -237,18 +214,27 @@ void teste(){
 	gv->defineEdgeColor("black");
 	gv->defineVertexIcon("emptyIcon.png");
 
-
 	vector<pair<int,unsigned long long>> nodes;
 	vector<aresta> edges;
 
 	loadNodes(nodes);
+	printf("nodes loaded!");
 
-	printf("nodes done!\n");
+	graph->generateBusLines(5);
 
-	loadStreets(edges);
+
+
+
+
+
+
+
+
+
+	//loadStreets(edges);
 	printf("streets done!");
 
-	loadEdges(nodes,edges);
+	//loadEdges(nodes,edges);
 	printf("edges done!");
 
 

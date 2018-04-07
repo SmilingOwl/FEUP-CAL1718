@@ -20,12 +20,18 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
+const string FILE_A = "aSmall.txt";
+const string FILE_B = "bSmall.txt";
+const string FILE_C = "cSmall.txt";
+const int CHANGEVEHICLE = 12345; //STREET NAME
+
 const double INTERCHANGE = 1; // km
 const int WALKVELOCITY = 5; //km per hour
 const int BUSVELOCITY = 18;
 const int METROVELOCITY= 28;
 const int BUSPRICE = 10; //cents per kilometer
 const int METROPRICE = 40;
+
 
 class Graph;
 class Node;
@@ -100,6 +106,13 @@ public:
 	double pricePath();
 	void printPrice();
 
+	void writeNodeBus(Node* initialBusVertex);
+
+	void writeNodeMetro(Node* initialMetroVertex);
+
+	void writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle);
+
+	void writeStreet(int id, string name);
 
 };
 
@@ -269,16 +282,23 @@ bool Graph::generateBusLines(int numberOfNodes){
 	Node* nextVertex;
 	Node* nextBusVertex;
 
+	int busNumber = rand() % 999 + 100;
+	string lineName = "Autocarro " + to_string(busNumber);
+	this->writeStreet(busNumber,lineName);
+
+
 
 	this->addVertex(initialBusVertex);
+	this->writeNodeBus(initialBusVertex);
+
 	this->addEdge(ids->idEdges,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
+	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0);
 	ids->idEdges++;
 	this->addEdge(ids->idEdges,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
 	ids->idEdges++;
+
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
-
-
-
 
 		nextVertex = initialVertex->getRandomVertexDestination();
 		nextBusVertex =  nextVertex->createBusVertex();
@@ -287,14 +307,20 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 
 		this->addVertex(nextBusVertex);
+		this->writeNodeBus(nextBusVertex);
+
 		this->addEdge(ids->idEdges,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0);
 		ids->idEdges++;
 		this->addEdge(ids->idEdges,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
+		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0);
 		ids->idEdges++;
 
 		this->addEdge(ids->idEdges,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1);
 		ids->idEdges++;
 		this->addEdge(ids->idEdges,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1);
 		ids->idEdges++;
 
 		initialVertex = nextVertex;
@@ -305,11 +331,14 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 	this->vertexSetBus.push_back(nextBusVertex);
 
+	return true;
+
 
 }
 
 bool Graph::generateMetroLine(int numberOfNodes){
 	IDs * ids = new IDs();
+	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
 
 	Node* initialBusVertex = this->getRandomBusVertex();
@@ -318,10 +347,17 @@ bool Graph::generateMetroLine(int numberOfNodes){
 	Node* nextMetroVertex;
 
 
+	int metroLine = rand() % 9;
+	string lineName = "Metro Linha " + metroName[metroLine];
+	this->writeStreet(metroLine,lineName);
+
 	this->addVertex(initialMetroVertex);
+	this->writeNodeMetro(initialMetroVertex);
 	this->addEdge(ids->idEdges,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialBusVertex, 0);
 	ids->idEdges++;
 	this->addEdge(ids->idEdges,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
+	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialMetroVertex, 0);
 	ids->idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
 
@@ -335,14 +371,20 @@ bool Graph::generateMetroLine(int numberOfNodes){
 
 
 		this->addVertex(nextMetroVertex);
+		this->writeNodeMetro(nextMetroVertex);
+
 		this->addEdge(ids->idEdges,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
+		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextMetroVertex, 0);
 		ids->idEdges++;
 		this->addEdge(ids->idEdges,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextBusVertex, 0);
 		ids->idEdges++;
 
-		this->addEdge(ids->idEdges,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->addEdge(ids->idEdges,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2);
 		ids->idEdges++;
-		this->addEdge(ids->idEdges,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		this->addEdge(ids->idEdges,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+		this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2);
 		ids->idEdges++;
 
 		initialBusVertex = nextBusVertex;
@@ -352,6 +394,8 @@ bool Graph::generateMetroLine(int numberOfNodes){
 	}
 
 	this->vertexSetMetro.push_back(nextMetroVertex);
+
+	return true;
 
 
 }
@@ -761,7 +805,7 @@ void Graph::generatePathArestas(){
 void Graph::printStreetPath(){
 	vector<string> streets;
 	for (unsigned int i = 0; i < this->pathArestas.size();i++){
-		streets.push_back(this->pathArestas.at(i).getName());
+		streets.push_back(pathArestas.at(i).getName());
 	}
 
 	for (int it = 0; it < streets.size(); it++){
@@ -788,7 +832,74 @@ double Graph::pricePath(){
 void Graph::printPrice(){
 	double totalPrice = this->pricePath();
 
-	printf("%d €",totalPrice);
+	printf("%f €",totalPrice);
+}
+
+
+void Graph::writeNodeBus(Node* initialBusVertex) {
+
+	string lll;
+		lll= FILE_A;
+
+		ofstream myfile;
+			myfile.open(lll,ios::app);// escrever no fim do ficheiro.
+			if (myfile.is_open())
+			{
+				myfile << "\n"<< initialBusVertex->getID() << ";"<< initialBusVertex->getLat()<< ";"<<initialBusVertex->getLon()<< ";"<< initialBusVertex->getVehicle() ;
+
+				myfile.close();
+			}
+
+			printf("write node bus \n");
+}
+
+void Graph::writeNodeMetro(Node* initialMetroVertex ) {
+
+	string lll;
+		lll= FILE_A;
+
+		ofstream myfile;
+			myfile.open(lll,ios::app);// escrever no fim do ficheiro.
+			if (myfile.is_open())
+			{
+				myfile << "\n"<< initialMetroVertex->getID() << ";"<< initialMetroVertex->getLat()<< ";"<<initialMetroVertex->getLon()<< ";"<< initialMetroVertex->getVehicle() ;
+
+				myfile.close();
+			}
+}
+
+void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle) {
+
+	string lll;
+			lll= FILE_C;
+
+			ofstream myfile;
+				myfile.open(lll,ios::app);// escrever no fim do ficheiro.
+				if (myfile.is_open())
+				{
+					myfile << "\n"<< idNewStreet << ";"<< initialVertex->getID()<< ";"<<finalVertex->getID() << ";" << vehicle;
+
+					myfile.close();
+				}
+
+				printf("write edge \n");
+
+
+}
+
+void Graph::writeStreet(int id, string name){
+    string ll;
+	ll= FILE_B;
+
+	ofstream myfile;
+		myfile.open(ll,ios::app);// escrever no fim do ficheiro.
+		if (myfile.is_open())
+		{
+			myfile << "\n"<< id << ";"<< name<< ";"<< "false" ;
+			myfile.close();
+		}
+
+		printf("write street \n");
 }
 
 
