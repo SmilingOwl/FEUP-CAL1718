@@ -47,7 +47,7 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 
 	if (file.is_open()) {
 		while (!file.eof()) {
-			printf("node");
+
 
 			getline(file,line);
 
@@ -76,6 +76,13 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 			double x = ( (lon - MIN_LON) * (IMAGE_Y) ) / (MAX_LON - MIN_LON);
 			double y = ((lat - MIN_LAT) * (IMAGE_X)) / (MAX_LAT - MIN_LAT);
 			gv->addNode(i , x,-y);
+			if (vehicle == 0){
+				gv->setVertexIcon(i, "emptyIcon.png");
+			} else if (vehicle == 1){
+				gv->setVertexIcon(i, "bus.png");
+			} else if (vehicle == 2){
+				gv->setVertexIcon(i, "metro.png");
+			}
 			i++;
 		}
 
@@ -97,6 +104,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 	unsigned long long idOrigin = 0;
 	unsigned long long idFinal = 0;
 	int id = 1;
+	int vehicle = 0;
 	if(file.fail())
 	{
 		cerr << "\nFile not found!\n";
@@ -116,14 +124,17 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 		getline(lineSs, string, ';');
 		//Destino
 		lineSs >> idFinal;
+		getline(lineSs, string, ';');
+		//vehicle
+		lineSs >> vehicle;
 
 		for(unsigned int i = 0; i < edges.size(); i++)
 		{
 
 			if(edges.at(i).id == idEdge)
 			{
-				int idIntOri = 0;
-				int idIntDest = 0;
+				unsigned long long idIntOri = 0;
+				unsigned long long idIntDest = 0;
 
 				for(auto n : nodes)
 				{
@@ -146,15 +157,36 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 				{
 					graph->addEdge(id,idIntOri, idIntDest,0,0);
 					gv->addEdge(id,idIntOri,idIntDest,EdgeType::DIRECTED);
-					gv->setEdgeColor(id,RED);
-					gv->setEdgeLabel(id,edges.at(i).nome);
+					if (vehicle == 0){
+						gv->setEdgeColor(id,RED);
+					} else if (vehicle ==  1){
+						gv->setEdgeColor(id,BLUE);
+					} else if (vehicle == 2){
+						gv->setEdgeColor(id,GREEN);
+					}
+					if (!(edges.at(i).nome == "MUDANCA DE TRANSPORTE")){
+						gv->setEdgeLabel(id,edges.at(i).nome);
+					} else {
+						gv->setEdgeLabel(id,"");
+					}
+
 
 					if(edges.at(i).is2Way){
 						id++;
 						graph->addEdge(id,idIntDest, idIntOri,0,0);
 						gv->addEdge(id,idIntDest,idIntOri,EdgeType::DIRECTED);
-						gv->setEdgeColor(id,BLUE);
-						gv->setEdgeLabel(id,edges.at(i).nome);
+						if (vehicle == 0){
+							gv->setEdgeColor(id,RED);
+						} else if (vehicle ==  1){
+							gv->setEdgeColor(id,BLUE);
+						} else if (vehicle == 2){
+							gv->setEdgeColor(id,GREEN);
+						}
+						if (!(edges.at(i).nome == "MUDANCA DE TRANSPORTE")){
+							gv->setEdgeLabel(id,edges.at(i).nome);
+						} else {
+							gv->setEdgeLabel(id,"");
+						}
 					}
 				}
 				break;
@@ -188,17 +220,19 @@ void loadStreets(vector<aresta> &edges){
 		string idd;
 		getline(file,idd,';');
 
-		idEdge = stoul(idd);
+		if(idd != "/r/n" && idd != ""){
+			idEdge = stoul(idd);
 
-		getline(file,nameOfStreet,';');
-		getline(file,twoWaysString);
-		if(twoWaysString == "True"){
-			twoWays = true;
-		} else {
-			twoWays = false;
+			getline(file,nameOfStreet,';');
+			getline(file,twoWaysString);
+			if(twoWaysString == "True"){
+				twoWays = true;
+			} else {
+				twoWays = false;
+			}
+
+			edges.push_back(aresta(idEdge,nameOfStreet,twoWays));
 		}
-
-		edges.push_back(aresta(idEdge,nameOfStreet,twoWays));
 	}
 	file.close();
 
@@ -212,40 +246,41 @@ void teste(){
 
 	gv->defineEdgeCurved(false);
 	gv->defineEdgeColor("black");
-	gv->defineVertexIcon("emptyIcon.png");
+	//gv->defineVertexIcon("emptyIcon.png");
 
 	vector<pair<int,unsigned long long>> nodes;
 	vector<aresta> edges;
 
 	loadNodes(nodes);
 	printf("nodes loaded!");
-
-	graph->generateBusLines(5);
-
-
-
-
-
-
-
-
-
-
-	//loadStreets(edges);
+	loadStreets(edges);
 	printf("streets done!");
 
-	//loadEdges(nodes,edges);
+	loadEdges(nodes,edges);
 	printf("edges done!");
+	/*
+	graph->generateBusLines(14);
+	graph->generateBusLines(10);
+	graph->generateMetroLine(5);
+	*/
 
 
 
 
 
-	//system("pause");
 
-	//graph->printView();
 
-	//gv->rearrange();
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

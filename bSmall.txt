@@ -12,4 +12,3 @@
 453823653;Rua da Figueira da Foz;False
 548380494;Rua da Figueira da Foz;False
 12345;MUDANCA DE TRANSPORTE;False
-

@@ -54,10 +54,13 @@ double deg2rad(double deg) {
 bool openFile(ifstream &file, const string fileName) {
 	file.open(fileName);
 
-	if (!file)
+	if (!file){
 		cerr << "Error" << endl;
-	else
+		return false;
+	}
+	else {
 		return true;
+	}
 }
 
 

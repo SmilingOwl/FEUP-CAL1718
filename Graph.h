@@ -10,6 +10,7 @@
 #include <list>
 #include <limits>
 #include <cmath>
+#include <time.h>
 #include "MutablePriorityQueue.h"
 #include "graphviewer.h"
 #include "AuxiliarMethods.h"
@@ -60,7 +61,7 @@ public:
 	Node *getRandomBusVertex();
 	bool addVertex(unsigned long long id, double lat, double lon, int vehicle);
 	bool addVertex(Node* n);
-	bool addEdge(unsigned long long id,int sourc, int dest, double w, int vehicle);
+	bool addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle);
 
 	int getNumVertex() const;
 	vector<Node *> getVertexSet() const;
@@ -79,8 +80,8 @@ public:
 	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
 	double getPathDistance(int origin, int dest);
 
-	bool generateBusLines(int numberOfNodes);
-	bool generateMetroLine(int numberOfNodes);
+	bool generateBusLines(unsigned int numberOfNodes);
+	bool generateMetroLine(unsigned int numberOfNodes);
 
 	void printView();
 
@@ -256,7 +257,7 @@ bool Graph::addVertex(Node* n){
  * Returns true if successful, and false if the source or destination vertex does not exist.
  */
 
-bool Graph::addEdge(unsigned long long id,int sourc, int dest, double w, int vehicle) {
+bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle) {
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
 	while (v1 == NULL){
@@ -272,15 +273,21 @@ bool Graph::addEdge(unsigned long long id,int sourc, int dest, double w, int veh
 	return true;
 }
 
-bool Graph::generateBusLines(int numberOfNodes){
+bool Graph::generateBusLines(unsigned int numberOfNodes){
 	IDs * ids = new IDs();
 
+
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSet().size()) return false;
+
+
 
 	Node* initialVertex = this->getRandomVertex();
 	Node* initialBusVertex = initialVertex->createBusVertex();
 	Node* nextVertex;
 	Node* nextBusVertex;
+	vector<int> pastNodes;
+	pastNodes.push_back(initialVertex->id);
+	bool flag = false;
 
 	int busNumber = rand() % 999 + 100;
 	string lineName = "Autocarro " + to_string(busNumber);
@@ -288,38 +295,59 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 
 
-	this->addVertex(initialBusVertex);
+	//this->addVertex(initialBusVertex);
 	this->writeNodeBus(initialBusVertex);
 
-	this->addEdge(ids->idEdges,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
+	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0);
 	ids->idEdges++;
-	this->addEdge(ids->idEdges,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	//this->addEdge(CHANGEVEHICLE,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
 	ids->idEdges++;
 
-	for (unsigned int i = 1; i < numberOfNodes -1; i++){
+	for (unsigned int i = 1; i < (numberOfNodes -1); i++){
 
-		nextVertex = initialVertex->getRandomVertexDestination();
-		nextBusVertex =  nextVertex->createBusVertex();
+
+
+		do{
+			flag = false;
+			nextVertex = initialVertex->getRandomVertexDestination();
+			for (int n = 0; n < pastNodes.size(); n++){
+				if (pastNodes.at(n)==nextVertex->id){
+					flag = true;
+
+				}
+			}
+		} while (flag);
+
+
+
+
+
+		pastNodes.push_back(nextVertex->id);
+
+
+		nextBusVertex = nextVertex->createBusVertex();
 
 		this->vertexSetBus.push_back(initialBusVertex);
 
+		printf("%d \n",i);
 
-		this->addVertex(nextBusVertex);
+
+		//this->addVertex(nextBusVertex);
 		this->writeNodeBus(nextBusVertex);
 
-		this->addEdge(ids->idEdges,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		//this->addEdge(CHANGEVEHICLE,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
 		this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0);
 		ids->idEdges++;
-		this->addEdge(ids->idEdges,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
+		//this->addEdge(CHANGEVEHICLE,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
 		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0);
 		ids->idEdges++;
 
-		this->addEdge(ids->idEdges,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		//this->addEdge(busNumber,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
 		this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1);
 		ids->idEdges++;
-		this->addEdge(ids->idEdges,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
+		//this->addEdge(busNumber,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
 		this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1);
 		ids->idEdges++;
 
@@ -336,7 +364,7 @@ bool Graph::generateBusLines(int numberOfNodes){
 
 }
 
-bool Graph::generateMetroLine(int numberOfNodes){
+bool Graph::generateMetroLine(unsigned int numberOfNodes){
 	IDs * ids = new IDs();
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
@@ -345,21 +373,37 @@ bool Graph::generateMetroLine(int numberOfNodes){
 	Node* initialMetroVertex = initialBusVertex->createMetroVertex();
 	Node* nextBusVertex;
 	Node* nextMetroVertex;
+	vector<int> pastNodes;
+	bool flag = false;
+	pastNodes.push_back(initialBusVertex->id);
 
 
 	int metroLine = rand() % 9;
 	string lineName = "Metro Linha " + metroName[metroLine];
 	this->writeStreet(metroLine,lineName);
 
-	this->addVertex(initialMetroVertex);
+	//this->addVertex(initialMetroVertex);
 	this->writeNodeMetro(initialMetroVertex);
-	this->addEdge(ids->idEdges,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+	//this->addEdge(CHANGEVEHICLE,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialBusVertex, 0);
 	ids->idEdges++;
-	this->addEdge(ids->idEdges,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
+	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialMetroVertex, 0);
 	ids->idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
+
+		do{
+			flag = false;
+			nextBusVertex = initialBusVertex->getRandomVertexDestination();
+			for (int n = 0; n < pastNodes.size(); n++){
+				if (pastNodes.at(n)==nextBusVertex->id){
+					flag = true;
+				}
+			}
+		} while (flag);
+
+		pastNodes.push_back(nextBusVertex->id);
+
 
 		this->vertexSetMetro.push_back(initialMetroVertex);
 
@@ -370,20 +414,20 @@ bool Graph::generateMetroLine(int numberOfNodes){
 
 
 
-		this->addVertex(nextMetroVertex);
+		//this->addVertex(nextMetroVertex);
 		this->writeNodeMetro(nextMetroVertex);
 
-		this->addEdge(ids->idEdges,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
+		//this->addEdge(CHANGEVEHICLE,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
 		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextMetroVertex, 0);
 		ids->idEdges++;
-		this->addEdge(ids->idEdges,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
+		//this->addEdge(CHANGEVEHICLE,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
 		this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextBusVertex, 0);
 		ids->idEdges++;
 
-		this->addEdge(ids->idEdges,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+		//this->addEdge(metroLine,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
 		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2);
 		ids->idEdges++;
-		this->addEdge(ids->idEdges,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+		//this->addEdge(metroLine,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
 		this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2);
 		ids->idEdges++;
 
@@ -589,7 +633,9 @@ Node* Node::getPath() const {
 
 Node* Node::getRandomVertexDestination(){
 
+
 	int randomIndex = rand() % this->adj.size();
+
 
 	return this->adj.at(randomIndex).getDest();
 }
@@ -895,7 +941,7 @@ void Graph::writeStreet(int id, string name){
 		myfile.open(ll,ios::app);// escrever no fim do ficheiro.
 		if (myfile.is_open())
 		{
-			myfile << "\n"<< id << ";"<< name<< ";"<< "false" ;
+			myfile << "\n"<< id << ";"<< name<< ";"<< "False" ;
 			myfile.close();
 		}
 
