@@ -17,6 +17,7 @@ const float MIN_LON = -8.65271;
 const int IMAGE_X = 2000;
 const int IMAGE_Y = 2464;
 
+
 void teste();
 
 
@@ -41,7 +42,7 @@ struct aresta {
 void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 	string line;
 
-	ifstream file("aSmall.txt");
+	ifstream file(FILE_A);
 
 	int i = 1;
 
@@ -96,7 +97,7 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 
 
 void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<aresta> &edges){
-	ifstream file("cSmall.txt");
+	ifstream file(FILE_C);
 
 	string line;
 
@@ -203,7 +204,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 }
 
 void loadStreets(vector<aresta> &edges){
-	ifstream file("bSmall.txt");
+	ifstream file(FILE_B);
 	string line;
 
 	unsigned long long idEdge = 0;
@@ -240,6 +241,123 @@ void loadStreets(vector<aresta> &edges){
 
 }
 
+bool checkIfNodeExists(unsigned long long id){
+	for (unsigned int i = 0; i < graph->getVertexSet().size(); i++){
+		if(graph->getVertexSet().at(i)->getID()==id){
+			return true;
+		}
+	}
+	return false;
+}
+
+void menu()
+{
+
+	cout<<"  _____     _       ____  _                             "<<endl;
+	cout<<" |_   _| __(_)_ __ |  _ \\| | __ _ _ __  _ __   ___ _ __ "<<endl;
+	cout<<"   | || '__| | '_ \\| |_) | |/ _` | '_ \\| '_ \\ / _ \\ '__|"<<endl;
+	cout<<"   | || |  | | |_) |  __/| | (_| | | | | | | |  __/ |   "<<endl;
+	cout<<"   |_||_|  |_| .__/|_|   |_|\\__,_|_| |_|_| |_|\\___|_|   "<<endl;
+	cout<<"             |_|                                        "<<endl;
+
+
+	cout<< "Welcome! We will help to find your favorite way to get your destiny!"<<endl;
+
+	cout<<"Where are you?"<<endl;
+	cout<<"Please choose an ID"<<endl;
+
+	unsigned long long idOrigem;
+	cin>>idOrigem;
+	while (!checkIfNodeExists(idOrigem)){
+		cout<<"Please choose a valid ID"<<endl;
+		cin >>idOrigem;
+	}
+	//TODO
+
+
+	cout<<"Where do you want to go?"<<endl;
+	cout<<"Please choose an ID"<<endl;
+
+	unsigned long long idDestino;
+	cin>>idDestino;
+	while (!checkIfNodeExists(idDestino)){
+		cout<<"Please choose a valid ID"<<endl;
+		cin >>idDestino;
+	}
+	//TODO
+
+
+	cout<<"Choose your preferences!"<<endl;
+
+
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   1. Fastest Path                        |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   2. Shortest Path                       |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   3. Bus Preferably                      |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   4. Metro Preferably                    |" << endl;
+	cout << "+------------------------------------------+" << endl;
+
+	int option;
+	cout<<"option: ";
+	cin>>option;
+
+	switch(option)
+	{
+	case 1:
+		graph->printShortest(idOrigem, idDestino);
+		break;
+
+	case 2:
+		//caminho mais curto em km utilizando apenas autocarros,
+		//se não existir autocarros ir a pé.
+		//mostar também o custo total da viagem e o tempo que demora
+		break;
+
+	case 3:
+		//caminho mais curto em km utilizando apenas metro,
+		//se não existir autocarros ir a pé.
+		//mostar também o custo total da viagem e o tempo que demora
+		break;
+
+	case 4:
+		int option2;
+		cout<<"What do you prefer?"<<endl;
+
+		cout << "+------------------------------------------+" << endl;
+		cout << "|   1. Shortest path                       |" << endl;
+		cout << "+------------------------------------------+" << endl;
+		cout << "|   2. Fastest path                        |" << endl;
+		cout << "+------------------------------------------+" << endl;
+		cout << "|   3. Cheapest path                       |" << endl;
+		cout << "+------------------------------------------+" << endl;
+
+		cout<<"option: ";
+		cin>> option2;
+
+		switch(option2)
+		{
+		case 1:
+			//caminho mais curto combinando a pé, autocarro e metro
+			//mostrar distancia, custo e tempo
+			break;
+		case 2:
+			//caminho mais rápido combinando a pé, autocarro e metro
+			//mostrar distancia, custo e tempo
+			break;
+		case 3:
+			//caminho mais barato combinando a pé, autocarro e metro
+			//mostrar distancia, custo e tempo
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
 void teste(){
 	gv = new GraphViewer(500,500,false);
 	gv->createWindow(800, 800);
@@ -252,17 +370,17 @@ void teste(){
 	vector<aresta> edges;
 
 	loadNodes(nodes);
-	printf("nodes loaded!");
+	//printf("nodes loaded!");
 	loadStreets(edges);
-	printf("streets done!");
+	//printf("streets done!");
 
 	loadEdges(nodes,edges);
-	printf("edges done!");
-	/*
-	graph->generateBusLines(14);
-	graph->generateBusLines(10);
-	graph->generateMetroLine(5);
-	*/
+	//printf("edges done!");
+
+	vector<int> buses = {14, 30, 10};
+
+	//graph->generateBusLines(buses);
+	//graph->generateMetroLines(5);
 
 
 
@@ -289,6 +407,8 @@ int main() {
 	//exercicio2();
 	//exercicio3();
 	teste();
+	menu();
+
 	getchar();
 	return 0;
 }

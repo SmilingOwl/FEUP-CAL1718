@@ -17,13 +17,25 @@
 
 using namespace std;
 
+/*
+ * setWeight (int parameter)
+ * parameter = 0 -> o peso é a distancia
+ * parameter = 1 -> o peso é o tempo
+ * parameter = 2 -> o peso é o custo (NOT WORKING)
+ * parameter = 3 -> bus é o transporte preferido
+ * parameter = 4 -> metro é o transporte preferido
+ *
+ *
+ *
+ */
+
 
 
 #define INF std::numeric_limits<double>::max()
 
-const string FILE_A = "aSmall.txt";
-const string FILE_B = "bSmall.txt";
-const string FILE_C = "cSmall.txt";
+const string FILE_A = "a1000.txt";
+const string FILE_B = "b1000.txt";
+const string FILE_C = "c1000.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -80,8 +92,8 @@ public:
 	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
 	double getPathDistance(int origin, int dest);
 
-	bool generateBusLines(unsigned int numberOfNodes);
-	bool generateMetroLine(unsigned int numberOfNodes);
+	bool generateBusLines(vector<int> numberOfNodes);
+	bool generateMetroLines(vector<int> numberOfNodes);
 
 	void printView();
 
@@ -106,6 +118,12 @@ public:
 	void printStreetPath();
 	double pricePath();
 	void printPrice();
+
+
+	void printShortest(unsigned long long origin, unsigned long long destination);
+	void printFastest(unsigned long long origin, unsigned long long destination);
+	void printBus(unsigned long long origin, unsigned long long destination);
+	void printMetro(unsigned long long origin, unsigned long long destination);
 
 	void writeNodeBus(Node* initialBusVertex);
 
@@ -273,107 +291,111 @@ bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned lon
 	return true;
 }
 
-bool Graph::generateBusLines(unsigned int numberOfNodes){
+bool Graph::generateBusLines(vector<int> numberOfNodes){
 	IDs * ids = new IDs();
-
-
-	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSet().size()) return false;
-
-
-
-	Node* initialVertex = this->getRandomVertex();
-	Node* initialBusVertex = initialVertex->createBusVertex();
-	Node* nextVertex;
-	Node* nextBusVertex;
 	vector<int> pastNodes;
-	pastNodes.push_back(initialVertex->id);
-	bool flag = false;
-
-	int busNumber = rand() % 999 + 100;
-	string lineName = "Autocarro " + to_string(busNumber);
-	this->writeStreet(busNumber,lineName);
 
 
+	for (unsigned int iterator = 0; iterator < numberOfNodes.size(); iterator++){
 
-	//this->addVertex(initialBusVertex);
-	this->writeNodeBus(initialBusVertex);
+		if (numberOfNodes.at(iterator) <= 1 || numberOfNodes.at(iterator)>= this->getVertexSet().size()) return false;
 
-	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialVertex->getID(),INTERCHANGE,0);
-	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0);
-	ids->idEdges++;
-	//this->addEdge(CHANGEVEHICLE,initialVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
-	this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
-	ids->idEdges++;
+		pastNodes.clear();
 
-	for (unsigned int i = 1; i < (numberOfNodes -1); i++){
+		Node* initialVertex = this->getRandomVertex();
+		Node* initialBusVertex = initialVertex->createBusVertex();
+		Node* nextVertex;
+		Node* nextBusVertex;
 
 
+		pastNodes.push_back(initialVertex->id);
+		bool flag = false;
+		bool beco = false;
 
-		do{
-			flag = false;
-			nextVertex = initialVertex->getRandomVertexDestination();
-			for (int n = 0; n < pastNodes.size(); n++){
-				if (pastNodes.at(n)==nextVertex->id){
-					flag = true;
+		srand(time(NULL));
+		int busNumber = rand() % 899 + 100;
+		string lineName = "Autocarro " + to_string(busNumber);
+		this->writeStreet(busNumber,lineName);
 
-				}
+
+
+		this->writeNodeBus(initialBusVertex);
+
+		this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0);
+		ids->idEdges++;
+
+		this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
+		ids->idEdges++;
+
+		for (unsigned int i = 1; i < (numberOfNodes.at(iterator) -1); i++){
+			if ((initialVertex->getAdj().size() >= 1) && (initialVertex->getAdj().at(0).getVehicle() == 0)){
+
+				do{
+					flag = false;
+					nextVertex = initialVertex->getRandomVertexDestination();
+
+
+					for (int n = 0; n < pastNodes.size(); n++){
+						if (pastNodes.at(n)==nextVertex->id){
+							flag = true;
+
+						}
+					}
+				} while (flag);
+
+
+
+
+
+				pastNodes.push_back(nextVertex->id);
+
+
+				nextBusVertex = nextVertex->createBusVertex();
+
+				this->vertexSetBus.push_back(initialBusVertex);
+
+				this->writeNodeBus(nextBusVertex);
+
+				this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0);
+				ids->idEdges++;
+
+				this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0);
+				ids->idEdges++;
+
+
+				this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1);
+				ids->idEdges++;
+
+				this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1);
+				ids->idEdges++;
+
+				initialVertex = nextVertex;
+				initialBusVertex = nextBusVertex;
 			}
-		} while (flag);
+		}
 
-
-
-
-
-		pastNodes.push_back(nextVertex->id);
-
-
-		nextBusVertex = nextVertex->createBusVertex();
-
-		this->vertexSetBus.push_back(initialBusVertex);
-
-		printf("%d \n",i);
-
-
-		//this->addVertex(nextBusVertex);
-		this->writeNodeBus(nextBusVertex);
-
-		//this->addEdge(CHANGEVEHICLE,nextVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
-		this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0);
-		ids->idEdges++;
-		//this->addEdge(CHANGEVEHICLE,nextBusVertex->getID(), nextVertex->getID(),INTERCHANGE,0);
-		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0);
-		ids->idEdges++;
-
-		//this->addEdge(busNumber,initialBusVertex->getID(),nextBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
-		this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1);
-		ids->idEdges++;
-		//this->addEdge(busNumber,nextBusVertex->getID(),initialBusVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),1);
-		this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1);
-		ids->idEdges++;
-
-		initialVertex = nextVertex;
-		initialBusVertex = nextBusVertex;
-
+			this->vertexSetBus.push_back(nextBusVertex);
 
 	}
 
-	this->vertexSetBus.push_back(nextBusVertex);
-
 	return true;
 
-
 }
-
-bool Graph::generateMetroLine(unsigned int numberOfNodes){
+/*
+bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	IDs * ids = new IDs();
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
+	vector<int> pastNodes;
+
 	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
+
+	pastNodes.clear();
 
 	Node* initialBusVertex = this->getRandomBusVertex();
 	Node* initialMetroVertex = initialBusVertex->createMetroVertex();
 	Node* nextBusVertex;
 	Node* nextMetroVertex;
-	vector<int> pastNodes;
+
 	bool flag = false;
 	pastNodes.push_back(initialBusVertex->id);
 
@@ -443,6 +465,8 @@ bool Graph::generateMetroLine(unsigned int numberOfNodes){
 
 
 }
+
+*/
 
 
 /**************** Single Source Shortest Path algorithms ************/
@@ -634,10 +658,13 @@ Node* Node::getPath() const {
 Node* Node::getRandomVertexDestination(){
 
 
+
 	int randomIndex = rand() % this->adj.size();
 
 
-	return this->adj.at(randomIndex).getDest();
+
+
+	return this->adj.at(0).getDest();
 }
 
 void Node::updateWeights(int parameter){
@@ -818,11 +845,12 @@ bool Graph::getFastestPath(unsigned long long origin, unsigned long long destina
 		return 0;
 	}
 
-}
+}//caminho mais curto em km apenas ! não tem custos
 
 bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destination){
 
 	this->updateWeights(2);
+	pathNodes.clear();
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
 		return 1;
@@ -834,6 +862,7 @@ bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destin
 
 //run this after generated pathNodes
 void Graph::generatePathArestas(){
+	pathArestas.clear();
 	for (unsigned int i = 0; i < this->pathNodes.size() - 1;i++){
 		Node* currentVertex = findVertex(this->pathNodes.at(i));
 		Node* nextVertex = findVertex(this->pathNodes.at(i+1));
@@ -875,11 +904,17 @@ double Graph::pricePath(){
 
 }
 
-void Graph::printPrice(){
-	double totalPrice = this->pricePath();
+void Graph::printShortest(unsigned long long origin, unsigned long long destination){
+	this->getShortestPath(origin, destination);
+	this->generatePathArestas();
 
-	printf("%f €",totalPrice);
+	this->printStreetPath();
+
+	printf("/nPreço: %f",this->pricePath());
 }
+void printFastest(unsigned long long origin, unsigned long long destination);
+void printBus(unsigned long long origin, unsigned long long destination);
+void printMetro(unsigned long long origin, unsigned long long destination);
 
 
 void Graph::writeNodeBus(Node* initialBusVertex) {
