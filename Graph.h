@@ -73,7 +73,7 @@ public:
 	Node *getRandomBusVertex();
 	bool addVertex(unsigned long long id, double lat, double lon, int vehicle);
 	bool addVertex(Node* n);
-	bool addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle);
+	bool addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle,string name);
 
 	int getNumVertex() const;
 	vector<Node *> getVertexSet() const;
@@ -144,7 +144,7 @@ class Aresta {
 	int vehicle; // a la pata = 0, bus = 1, metro = 2;
 
 public:
-	Aresta(unsigned long long id, Node *d, double w, string n, int vehicle);
+	Aresta(unsigned long long id, Node *d, double w, string n, int vehicle, string name);
 	friend class Graph;
 	friend class Node;
 	string getName();
@@ -169,7 +169,7 @@ class Node {
 
 
 	bool processing = false;
-	void addEdge(Node *dest, double w, int vehicle);
+	void addEdge(Node *dest, double w, int vehicle,string name);
 
 public:
 	Node(unsigned long long id,double lat, double lon, int vehicle);
@@ -275,7 +275,7 @@ bool Graph::addVertex(Node* n){
  * Returns true if successful, and false if the source or destination vertex does not exist.
  */
 
-bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle) {
+bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle,string name) {
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
 	while (v1 == NULL){
@@ -287,7 +287,7 @@ bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned lon
 		dest++;
 		v2 = findVertex(dest);
 	}
-	v1->addEdge(v2,w,vehicle);
+	v1->addEdge(v2,w,vehicle,name);
 	return true;
 }
 
@@ -623,9 +623,9 @@ void Node::isMetroNow(){
 }
 
 
-void Node::addEdge(Node *d, double w, int vehicle) {
+void Node::addEdge(Node *d, double w, int vehicle, string name) {
 	int id = rand() % 124567;
-	Aresta newAresta(id,d,w," ",vehicle);
+	Aresta newAresta(id,d,w," ",vehicle, name);
 	adj.push_back(newAresta);
 }
 
@@ -673,13 +673,14 @@ void Node::updateWeights(int parameter){
 	}
 }
 
-Aresta::Aresta(unsigned long long id, Node *d, double w, string n,int vehicle){
+Aresta::Aresta(unsigned long long id, Node *d, double w, string n,int vehicle,string name){
 	this->id = id;
 	this->dest = d;
 	this->distance = w;
 	this->name = n;
 	this->vehicle = vehicle;
 	this->weight = 0;
+	this->name = name;
 }
 
 string Aresta::getName(){

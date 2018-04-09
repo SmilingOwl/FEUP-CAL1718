@@ -156,7 +156,11 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 
 				if(idIntOri != 0 && idIntDest != 0)
 				{
-					graph->addEdge(id,idIntOri, idIntDest,0,0);
+					//todo distance
+					Node* nodeOriginal = graph->findVertex(idIntOri);
+					Node* nodeFinal = graph->findVertex(idIntDest);
+
+					graph->addEdge(id,idIntOri, idIntDest,graph->getDistanceVertex(nodeOriginal, nodeFinal),vehicle,edges.at(i).nome);
 					gv->addEdge(id,idIntOri,idIntDest,EdgeType::DIRECTED);
 					if (vehicle == 0){
 						gv->setEdgeColor(id,RED);
@@ -174,7 +178,9 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 
 					if(edges.at(i).is2Way){
 						id++;
-						graph->addEdge(id,idIntDest, idIntOri,0,0);
+
+						//todo distance
+						graph->addEdge(id,idIntDest, idIntOri,graph->getDistanceVertex(nodeOriginal, nodeFinal),vehicle,edges.at(i).nome);
 						gv->addEdge(id,idIntDest,idIntOri,EdgeType::DIRECTED);
 						if (vehicle == 0){
 							gv->setEdgeColor(id,RED);
