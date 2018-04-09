@@ -884,7 +884,8 @@ void Graph::printStreetPath(){
 	}
 
 	for (int it = 0; it < streets.size(); it++){
-		printf("%d: %s \n",it,streets.at(it));
+		string nome = streets.at(it);
+		cout << it << ": " << nome << endl;
 	}
 
 }
@@ -910,7 +911,7 @@ void Graph::printShortest(unsigned long long origin, unsigned long long destinat
 
 	this->printStreetPath();
 
-	printf("/nPreço: %f",this->pricePath());
+	printf("\nPreço: %.2f",this->pricePath());
 }
 void printFastest(unsigned long long origin, unsigned long long destination);
 void printBus(unsigned long long origin, unsigned long long destination);
