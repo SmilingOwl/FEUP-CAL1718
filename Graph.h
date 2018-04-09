@@ -867,8 +867,8 @@ void Graph::generatePathArestas(){
 		Node* currentVertex = findVertex(this->pathNodes.at(i));
 		Node* nextVertex = findVertex(this->pathNodes.at(i+1));
 		for (unsigned int n = 0; n < currentVertex->getAdj().size(); n++){
-			if (currentVertex->getAdj().at(i).dest == nextVertex){
-				this->pathArestas.push_back(currentVertex->getAdj().at(i));
+			if (currentVertex->getAdj().at(n).dest == nextVertex){
+				this->pathArestas.push_back(currentVertex->getAdj().at(n));
 				break;
 			}
 		}
