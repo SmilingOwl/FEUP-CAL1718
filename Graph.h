@@ -33,9 +33,9 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
-const string FILE_A = "aSmall.txt";
-const string FILE_B = "bSmall.txt";
-const string FILE_C = "cSmall.txt";
+const string FILE_A = "a1000.txt";
+const string FILE_B = "b1000.txt";
+const string FILE_C = "c1000.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -908,6 +908,7 @@ bool Graph::getMetroPath(unsigned long long origin, unsigned long long destinati
 }
 
 //run this after generated pathNodes
+
 void Graph::generatePathArestas(){
 	pathArestas.clear();
 	for (unsigned int i = 0; i < this->pathNodes.size() - 1;i++){
@@ -962,51 +963,75 @@ double Graph::distancePath(){
 }
 
 void Graph::printShortest(unsigned long long origin, unsigned long long destination){
+	clock_t begin = clock();
 	this->getShortestPath(origin, destination);
+	clock_t end = clock();
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
+
+	printf("\nElapsed Time: %.6f",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
 void Graph::printFastest(unsigned long long origin, unsigned long long destination){
+	clock_t begin = clock();
 	this->getFastestPath(origin, destination);
+	clock_t end = clock();
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
+
+	printf("\nElapsed Time: %.6f",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
 
 void Graph::printCheapest(unsigned long long origin, unsigned long long destination){
+	clock_t begin = clock();
 	this->getCheapestPath(origin, destination);
+	clock_t end = clock();
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
+
+	printf("\nElapsed Time: %.6f",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
 void Graph::printBus(unsigned long long origin, unsigned long long destination){
-
+	clock_t begin = clock();
 	this->getBusPath(origin, destination);
+	clock_t end = clock();
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
+
+	printf("\nElapsed Time: %.6f",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 
 }
 void Graph::printMetro(unsigned long long origin, unsigned long long destination){
-
+	clock_t begin = clock();
 	this->getMetroPath(origin, destination);
+	clock_t end = clock();
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
+
+
+	printf("\nElapsed Time: %.6f",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
