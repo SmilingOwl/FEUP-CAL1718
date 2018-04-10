@@ -156,7 +156,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 
 				if(idIntOri != 0 && idIntDest != 0)
 				{
-					//todo distance
+
 					Node* nodeOriginal = graph->findVertex(idIntOri);
 					Node* nodeFinal = graph->findVertex(idIntDest);
 
@@ -179,7 +179,6 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 					if(edges.at(i).is2Way){
 						id++;
 
-						//todo distance
 						graph->addEdge(id,idIntDest, idIntOri,graph->getDistanceVertex(nodeOriginal, nodeFinal),vehicle,edges.at(i).nome);
 						gv->addEdge(id,idIntDest,idIntOri,EdgeType::DIRECTED);
 						if (vehicle == 0){
@@ -278,7 +277,7 @@ void menu()
 		cout<<"Please choose a valid ID"<<endl;
 		cin >>idOrigem;
 	}
-	//TODO
+
 
 
 	cout<<"Where do you want to go?"<<endl;
@@ -290,7 +289,7 @@ void menu()
 		cout<<"Please choose a valid ID"<<endl;
 		cin >>idDestino;
 	}
-	//TODO
+
 
 
 	cout<<"Choose your preferences!"<<endl;
@@ -320,6 +319,7 @@ void menu()
 		//caminho mais curto em km utilizando apenas autocarros,
 		//se não existir autocarros ir a pé.
 		//mostar também o custo total da viagem e o tempo que demora
+		graph->printFastest(idOrigem, idDestino);
 		break;
 
 	case 3:

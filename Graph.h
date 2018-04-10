@@ -112,18 +112,25 @@ public:
 	bool getShortestPath(unsigned long long origin, unsigned long long destination);
 	bool getFastestPath(unsigned long long origin, unsigned long long destination);
 	bool getCheapestPath(unsigned long long origin, unsigned long long destination);
+	bool getBusPath(unsigned long long origin, unsigned long long destination)
+	bool getMetroPath(unsigned long long origin, unsigned long long destination)
 
 	void generatePathArestas();
 
 	void printStreetPath();
+
 	double pricePath();
+	double distancePath();
+
 	void printPrice();
 
 
 	void printShortest(unsigned long long origin, unsigned long long destination);
 	void printFastest(unsigned long long origin, unsigned long long destination);
+	void printCheapest(unsigned long long origin, unsigned long long destination);
 	void printBus(unsigned long long origin, unsigned long long destination);
 	void printMetro(unsigned long long origin, unsigned long long destination);
+
 
 	void writeNodeBus(Node* initialBusVertex);
 
@@ -734,7 +741,7 @@ void Aresta::setWeight(int parameter){
 		}
 	} else if (parameter == 2){
 		if(this->vehicle == 0){
-			this->weight = 5;
+			this->weight = 5 * distance;
 		} else if (this->vehicle == 1){
 			this->weight = distance * BUSPRICE;
 		} else if (this->vehicle == 2){
@@ -742,19 +749,19 @@ void Aresta::setWeight(int parameter){
 		}
 	} else if (parameter == 3){
 		if(this->vehicle == 0){
-			this->weight = 20;
+			this->weight = 20 * distance;
 		} else if (this->vehicle == 1){
-			this->weight = 1;
+			this->weight = 1 * distance;
 		} else if (this->vehicle == 2){
-			this->weight = 10;
+			this->weight = 10 * distance;
 		}
 	} else if (parameter == 4){
 		if(this->vehicle == 0){
-			this->weight = 20;
+			this->weight = 20 * distance;
 		} else if (this->vehicle == 1){
-			this->weight = 10;
+			this->weight = 10 * distance;
 		} else if (this->vehicle == 2){
-			this->weight = 1;
+			this->weight = 1 * distance;
 		}
 	}
 }
@@ -846,7 +853,7 @@ bool Graph::getFastestPath(unsigned long long origin, unsigned long long destina
 		return 0;
 	}
 
-}//caminho mais curto em km apenas ! não tem custos
+}//caminho mais curto em km apenas !
 
 bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destination){
 
@@ -859,6 +866,28 @@ bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destin
 		return 0;
 	}
 
+}
+
+bool Graph::getBusPath(unsigned long long origin, unsigned long long destination){
+	this->updateWeights(3);
+	pathNodes.clear();
+	if (findVertex(origin) && findVertex(destination)){
+		pathNodes = getPath(origin, destination);
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+bool Graph::getMetroPath(unsigned long long origin, unsigned long long destination){
+	this->updateWeights(4);
+	pathNodes.clear();
+	if (findVertex(origin) && findVertex(destination)){
+		pathNodes = getPath(origin, destination);
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 //run this after generated pathNodes
@@ -906,17 +935,64 @@ double Graph::pricePath(){
 
 }
 
+double Graph::distancePath(){
+	double totalDistance = 0;
+	for (unsigned int i = 0; i <this->pathArestas.size(); i++){
+		totalDistance += pathArestas.at(i).getDistance();
+	}
+
+	return totalDistance;
+}
+
 void Graph::printShortest(unsigned long long origin, unsigned long long destination){
 	this->getShortestPath(origin, destination);
 	this->generatePathArestas();
 
 	this->printStreetPath();
 
+	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
-void printFastest(unsigned long long origin, unsigned long long destination);
-void printBus(unsigned long long origin, unsigned long long destination);
-void printMetro(unsigned long long origin, unsigned long long destination);
+void Graph::printFastest(unsigned long long origin, unsigned long long destination){
+	this->getFastestPath(origin, destination);
+	this->generatePathArestas();
+
+	this->printStreetPath();
+
+	printf("\nDistancia: %.3f Km",this->distancePath());
+	printf("\nPreço: %.2f",this->pricePath());
+}
+
+void Graph::printCheapest(unsigned long long origin, unsigned long long destination){
+	this->getCheapestPath(origin, destination);
+	this->generatePathArestas();
+
+	this->printStreetPath();
+
+	printf("\nDistancia: %.3f Km",this->distancePath());
+	printf("\nPreço: %.2f",this->pricePath());
+}
+void Graph::printBus(unsigned long long origin, unsigned long long destination){
+
+	this->getBusPath(origin, destination);
+	this->generatePathArestas();
+
+	this->printStreetPath();
+
+	printf("\nDistancia: %.3f Km",this->distancePath());
+	printf("\nPreço: %.2f",this->pricePath());
+
+}
+void Graph::printMetro(unsigned long long origin, unsigned long long destination){
+
+	this->getMetroPath(origin, destination);
+	this->generatePathArestas();
+
+	this->printStreetPath();
+
+	printf("\nDistancia: %.3f Km",this->distancePath());
+	printf("\nPreço: %.2f",this->pricePath());
+}
 
 
 void Graph::writeNodeBus(Node* initialBusVertex) {
