@@ -90,7 +90,7 @@ public:
 	void unweightedShortestPath(int s);
 	void bellmanFordShortestPath(int s);
 	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
-	double getPathDistance(int origin, int dest);
+	double getPathDistance(unsigned long long origin, unsigned long long dest);
 
 	bool generateBusLines(vector<int> numberOfNodes);
 	bool generateMetroLines(vector<int> numberOfNodes);
@@ -101,6 +101,7 @@ public:
 	void extractDataArestas();
 	void extractDataStreets();
 
+	Node* getRandomVertexInDistance(Node* origin, double distance);
 
 	vector<unsigned long long>pathNodes;
 	vector<Aresta>pathArestas;
@@ -388,7 +389,24 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 	return true;
 
 }
-/*
+
+Node* Graph::getRandomVertexInDistance(Node* origin, double distance){
+	vector<Node*> nodesInDistance;
+
+	for (unsigned int i = 0; i < vertexSet.size(); i++){
+		if(getDistanceVertex(origin,vertexSet.at(i))<=distance){
+			nodesInDistance.push_back(vertexSet.at(i));
+		}
+	}
+
+	int randomIndex = rand() % nodesInDistance.size();
+
+	return nodesInDistance.at(randomIndex);
+
+
+
+}
+
 bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	IDs * ids = new IDs();
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
@@ -398,69 +416,68 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 
 	pastNodes.clear();
 
-	Node* initialBusVertex = this->getRandomBusVertex();
-	Node* initialMetroVertex = initialBusVertex->createMetroVertex();
-	Node* nextBusVertex;
+	Node* initialVertex = this->getRandomVertex();
+	Node* initialMetroVertex = initialVertex->createMetroVertex();
+	Node* nextVertex;
 	Node* nextMetroVertex;
 
 	bool flag = false;
-	pastNodes.push_back(initialBusVertex->id);
+	pastNodes.push_back(initialVertex->id);
 
 
 	int metroLine = rand() % 9;
 	string lineName = "Metro Linha " + metroName[metroLine];
 	this->writeStreet(metroLine,lineName);
 
-	//this->addVertex(initialMetroVertex);
+
 	this->writeNodeMetro(initialMetroVertex);
 	//this->addEdge(CHANGEVEHICLE,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
-	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialBusVertex, 0);
+	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialVertex, 0);
 	ids->idEdges++;
 	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
-	this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialMetroVertex, 0);
+	this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0);
 	ids->idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes -1; i++){
 
 		do{
 			flag = false;
-			nextBusVertex = initialBusVertex->getRandomVertexDestination();
+			nextVertex = this->getRandomVertexInDistance(initialVertex, 0.5);
 			for (int n = 0; n < pastNodes.size(); n++){
-				if (pastNodes.at(n)==nextBusVertex->id){
+				if (pastNodes.at(n)==nextVertex->id){
 					flag = true;
 				}
 			}
 		} while (flag);
 
-		pastNodes.push_back(nextBusVertex->id);
+		pastNodes.push_back(nextVertex->id);
 
 
 		this->vertexSetMetro.push_back(initialMetroVertex);
 
 
-		nextBusVertex = initialBusVertex->getRandomVertexDestination();
-		nextMetroVertex =  nextBusVertex->createMetroVertex();
+		nextMetroVertex =  nextVertex->createMetroVertex();
 
 
 
 
-		//this->addVertex(nextMetroVertex);
+
 		this->writeNodeMetro(nextMetroVertex);
 
-		//this->addEdge(CHANGEVEHICLE,nextBusVertex->getID(), nextMetroVertex->getID(),INTERCHANGE,0);
-		this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextMetroVertex, 0);
-		ids->idEdges++;
-		//this->addEdge(CHANGEVEHICLE,nextMetroVertex->getID(), nextBusVertex->getID(),INTERCHANGE,0);
-		this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextBusVertex, 0);
+
+		this->writeEdge(CHANGEVEHICLE, nextVertex, nextMetroVertex, 0);
 		ids->idEdges++;
 
-		//this->addEdge(metroLine,initialMetroVertex->getID(),nextMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+		this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextVertex, 0);
+		ids->idEdges++;
+
+
 		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2);
 		ids->idEdges++;
-		//this->addEdge(metroLine,nextMetroVertex->getID(),initialMetroVertex->getID(),getDistanceVertex(initialBusVertex,nextBusVertex),2);
+
 		this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2);
 		ids->idEdges++;
 
-		initialBusVertex = nextBusVertex;
+		initialVertex = nextVertex;
 		initialMetroVertex = nextMetroVertex;
 
 
@@ -473,7 +490,7 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 
 }
 
-*/
+
 
 
 /**************** Single Source Shortest Path algorithms ************/
@@ -535,7 +552,7 @@ vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned lon
 		return res;
 }
 
-double Graph::getPathDistance(int origin, int dest){
+double Graph::getPathDistance(unsigned long long origin, unsigned long long dest){
 
 	double distance = 0;
 	this->dijkstraShortestPath(origin);
