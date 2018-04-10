@@ -206,3 +206,10 @@
 448850570;Rua de Sá da Bandeira;False
 484592257;Rua da Madeira;True
 12345;MUDANCA DE TRANSPORTE;False
+
+761;Autocarro 761;False
+666;Autocarro 666;False
+454;Autocarro 454;False
+7;Metro Linha H;False
+4;Metro Linha E;False
+1;Metro Linha B;False

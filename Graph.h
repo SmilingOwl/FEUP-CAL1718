@@ -241,13 +241,13 @@ Node* Graph::findVertex(unsigned long long id) const {
 
 
 Node* Graph::getRandomVertex(){
-	srand(time(NULL));
+
 	int r = rand() % vertexSet.size();
 	return vertexSet.at(r);
 }
 
 Node* Graph::getRandomBusVertex(){
-	srand(time(NULL));
+
 	int r = rand() % vertexSetBus.size();
 	return vertexSetBus.at(r);
 }
@@ -318,7 +318,7 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 
 		pastNodes.push_back(initialVertex->id);
 		bool flag = false;
-		bool beco = false;
+
 
 		srand(time(NULL));
 		int busNumber = rand() % 899 + 100;
@@ -335,12 +335,15 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 		this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
 		ids->idEdges++;
 
+		int fails = 25;
+
 		for (unsigned int i = 1; i < (numberOfNodes.at(iterator) -1); i++){
 			if ((initialVertex->getAdj().size() >= 1) && (initialVertex->getAdj().at(0).getVehicle() == 0)){
 
 				do{
 					flag = false;
 					nextVertex = initialVertex->getRandomVertexDestination();
+					printf("Size: %d", initialVertex->getAdj().size());
 
 
 					for (int n = 0; n < pastNodes.size(); n++){
@@ -349,7 +352,16 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 
 						}
 					}
+					fails--;
+
+					if (fails == 1){
+						break;
+					}
 				} while (flag);
+
+				if( fails == 1){
+					break;
+				}
 
 
 
@@ -382,7 +394,7 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 			}
 		}
 
-			this->vertexSetBus.push_back(nextBusVertex);
+			//this->vertexSetBus.push_back(nextBusVertex);
 
 	}
 
@@ -412,6 +424,8 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
 	vector<int> pastNodes;
 
+	for(int iterator = 0; iterator < numberOfNodes.size(); iterator++){
+
 	if (numberOfNodes.at(0) <= 1 || numberOfNodes.at(0)>= this->getVertexSet().size()) return false;
 
 	pastNodes.clear();
@@ -431,13 +445,14 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 
 
 	this->writeNodeMetro(initialMetroVertex);
-	//this->addEdge(CHANGEVEHICLE,initialMetroVertex->getID(),initialBusVertex->getID(),INTERCHANGE,0);
+
 	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialVertex, 0);
 	ids->idEdges++;
 	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0);
 	ids->idEdges++;
-	for (unsigned int i = 1; i < numberOfNodes.at(0) -1; i++){
+	for (unsigned int i = 1; i < numberOfNodes.at(iterator) -1; i++){
+		printf("node");
 
 		do{
 			flag = false;
@@ -485,6 +500,8 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 
 	this->vertexSetMetro.push_back(nextMetroVertex);
 
+	}
+
 	return true;
 
 
@@ -511,6 +528,8 @@ void Graph::dijkstraShortestPath(int origin) {
 	}
 	MutablePriorityQueue<Node> q;
 	q.insert(vertexOrigin);
+
+	//TODO
 
 
 
@@ -688,7 +707,7 @@ Node* Node::getRandomVertexDestination(){
 
 
 
-	return this->adj.at(0).getDest();
+	return this->adj.at(randomIndex).getDest();
 }
 
 void Node::updateWeights(int parameter){
@@ -758,7 +777,7 @@ void Aresta::setWeight(int parameter){
 		}
 	} else if (parameter == 2){
 		if(this->vehicle == 0){
-			this->weight = 5 * distance;
+			this->weight = 100 * distance;
 		} else if (this->vehicle == 1){
 			this->weight = distance * BUSPRICE;
 		} else if (this->vehicle == 2){
@@ -927,13 +946,21 @@ void Graph::generatePathArestas(){
 
 void Graph::printStreetPath(){
 	vector<string> streets;
+	int number = 2;
 	for (unsigned int i = 0; i < this->pathArestas.size();i++){
 		streets.push_back(pathArestas.at(i).getName());
 	}
 
-	for (int it = 0; it < streets.size(); it++){
+	cout << "1: "<< streets.at(0) << endl;
+
+	for (int it = 1; it < streets.size(); it++){
 		string nome = streets.at(it);
-		cout << it << ": " << nome << endl;
+		if (nome != streets.at(it-1) && nome != ""){
+			cout << number << ": " << nome << endl;
+			number++;
+		}
+
+
 	}
 
 }
@@ -972,7 +999,7 @@ void Graph::printShortest(unsigned long long origin, unsigned long long destinat
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f",elapsed_time);
+	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
@@ -986,7 +1013,7 @@ void Graph::printFastest(unsigned long long origin, unsigned long long destinati
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f",elapsed_time);
+	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
@@ -1001,7 +1028,7 @@ void Graph::printCheapest(unsigned long long origin, unsigned long long destinat
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f",elapsed_time);
+	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }
@@ -1015,7 +1042,7 @@ void Graph::printBus(unsigned long long origin, unsigned long long destination){
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f",elapsed_time);
+	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 
@@ -1031,7 +1058,7 @@ void Graph::printMetro(unsigned long long origin, unsigned long long destination
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
 
-	printf("\nElapsed Time: %.6f",elapsed_time);
+	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 }

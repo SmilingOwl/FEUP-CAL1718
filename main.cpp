@@ -176,7 +176,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 					}
 
 
-					if(edges.at(i).is2Way){
+
 						id++;
 
 						graph->addEdge(id,idIntDest, idIntOri,graph->getDistanceVertex(nodeOriginal, nodeFinal),vehicle,edges.at(i).nome);
@@ -193,7 +193,7 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 						} else {
 							gv->setEdgeLabel(id,"");
 						}
-					}
+
 				}
 				break;
 			}
@@ -383,7 +383,7 @@ void teste(){
 	loadEdges(nodes,edges);
 	//printf("edges done!");
 
-	vector<int> buses = {14, 30, 10};
+	vector<int> buses = {10, 15, 9};
 	vector<int> metro = {5, 3, 4};
 
 	//graph->generateBusLines(buses);
@@ -410,6 +410,7 @@ void teste(){
 }
 
 int main() {
+	srand(time(NULL));
 	//exercicio1();
 	//exercicio2();
 	//exercicio3();
