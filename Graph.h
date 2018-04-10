@@ -33,9 +33,9 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
-const string FILE_A = "a1000.txt";
-const string FILE_B = "b1000.txt";
-const string FILE_C = "c1000.txt";
+const string FILE_A = "aSmall.txt";
+const string FILE_B = "bSmall.txt";
+const string FILE_C = "cSmall.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -113,8 +113,8 @@ public:
 	bool getShortestPath(unsigned long long origin, unsigned long long destination);
 	bool getFastestPath(unsigned long long origin, unsigned long long destination);
 	bool getCheapestPath(unsigned long long origin, unsigned long long destination);
-	bool getBusPath(unsigned long long origin, unsigned long long destination)
-	bool getMetroPath(unsigned long long origin, unsigned long long destination)
+	bool getBusPath(unsigned long long origin, unsigned long long destination);
+	bool getMetroPath(unsigned long long origin, unsigned long long destination);
 
 	void generatePathArestas();
 
@@ -412,7 +412,7 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
 	vector<int> pastNodes;
 
-	if (numberOfNodes <= 1 || numberOfNodes>= this->getVertexSetBus().size()) return false;
+	if (numberOfNodes.at(0) <= 1 || numberOfNodes.at(0)>= this->getVertexSet().size()) return false;
 
 	pastNodes.clear();
 
@@ -437,7 +437,7 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
 	this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0);
 	ids->idEdges++;
-	for (unsigned int i = 1; i < numberOfNodes -1; i++){
+	for (unsigned int i = 1; i < numberOfNodes.at(0) -1; i++){
 
 		do{
 			flag = false;

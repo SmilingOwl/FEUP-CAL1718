@@ -384,9 +384,10 @@ void teste(){
 	//printf("edges done!");
 
 	vector<int> buses = {14, 30, 10};
+	vector<int> metro = {5};
 
 	//graph->generateBusLines(buses);
-	//graph->generateMetroLines(5);
+	//graph->generateMetroLines(metro);
 
 
 
