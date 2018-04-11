@@ -383,8 +383,8 @@ void teste(){
 	loadEdges(nodes,edges);
 	//printf("edges done!");
 
-	vector<int> buses = {10, 15, 9};
-	vector<int> metro = {5, 3, 4};
+	vector<int> buses = {10, 15, 10,14,15};
+	vector<int> metro = {10, 7, 6};
 
 	//graph->generateBusLines(buses);
 	//graph->generateMetroLines(metro);
