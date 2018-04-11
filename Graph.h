@@ -555,8 +555,13 @@ vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned lon
 		vector <unsigned long long> erro;
 
 		erro.push_back(0);
+		clock_t start = clock();
 		this->dijkstraShortestPath(origin);
+		clock_t finish = clock();
+		double timeDijkstra = double(finish-start) /CLOCKS_PER_SEC;
 		Node* currentVertex = this->findVertex(dest);
+
+		printf("Dijktra: %.6f seconds\n", timeDijkstra);
 
 		res.push_back(currentVertex->id);
 		while(currentVertex->id != origin)
@@ -1022,7 +1027,7 @@ void Graph::printShortest(unsigned long long origin, unsigned long long destinat
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f segundos",elapsed_time);
+	//printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f €",this->pricePath());
 
@@ -1045,7 +1050,7 @@ void Graph::printFastest(unsigned long long origin, unsigned long long destinati
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f segundos",elapsed_time);
+	//printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f €",this->pricePath());
 
@@ -1068,7 +1073,7 @@ void Graph::printCheapest(unsigned long long origin, unsigned long long destinat
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f segundos",elapsed_time);
+	//printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f €",this->pricePath());
 
@@ -1090,7 +1095,7 @@ void Graph::printBus(unsigned long long origin, unsigned long long destination){
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f segundos",elapsed_time);
+	//printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f €",this->pricePath());
 
@@ -1113,7 +1118,7 @@ void Graph::printMetro(unsigned long long origin, unsigned long long destination
 
 	double elapsed_time = double(end-begin) /CLOCKS_PER_SEC;
 
-	printf("\nElapsed Time: %.6f segundos",elapsed_time);
+	//printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f €",this->pricePath());
 

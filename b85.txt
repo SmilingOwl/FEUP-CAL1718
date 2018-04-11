@@ -1,0 +1,15 @@
+14326558;Rua dos Clérigos;False
+26119900;Rua Elísio de Melo;False
+39668885;Rua de Sampaio Bruno;False
+190128487;Rua Doutor Magalhães Lemos;False
+210328149;Praça de Almeida Garrett;False
+210831460;Praça de Almeida Garrett;False
+215135703;Praça da Liberdade;False
+215162241;Avenida dos Aliados;False
+215162243;;False
+216972581;Avenida dos Aliados;False
+216972801;Praça da Liberdade;False
+307804459;Praça de Almeida Garrett;False
+434872534;Avenida dos Aliados;False
+448850568;Praça de Almeida Garrett;False
+484592257;Rua da Madeira;True

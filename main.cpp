@@ -320,7 +320,7 @@ void menu()
 
 	unsigned long long idDestino;
 	cin>>idDestino;
-	while (!checkIfNodeExists(idDestino)){
+	while (!checkIfNodeExists(idDestino) || (idDestino == idOrigem)){
 		cout<<"Please choose a valid ID"<<endl;
 		cin >>idDestino;
 	}
