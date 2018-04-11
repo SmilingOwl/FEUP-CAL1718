@@ -262,6 +262,40 @@ bool checkIfNodeExists(unsigned long long id){
 void menu()
 {
 
+	bool file = false;
+	string fileA;
+	string fileB;
+	string fileC;
+
+	while(!file){
+		cout << "Select file A: " << endl;
+		cin >> fileA;
+		cout << "Select file B: " << endl;
+		cin >> fileB;
+		cout << "Select file C: " << endl;
+		cin >> fileC;
+
+		if (openFile(fileA) && openFile(fileB) && openFile(fileC)){
+			FILE_A = fileA;
+			FILE_B = fileB;
+			FILE_C = fileC;
+
+			file = true;
+		} else {
+			cerr << "Erro na introducao do nome dos ficheiros! (Press Enter to continue)" << endl;
+			cin.ignore();
+			cin.get();
+		}
+
+
+	}
+
+	cout << "Loading..."<< endl;
+
+	teste();
+
+
+
 	cout<<"  _____     _       ____  _                             "<<endl;
 	cout<<" |_   _| __(_)_ __ |  _ \\| | __ _ _ __  _ __   ___ _ __ "<<endl;
 	cout<<"   | || '__| | '_ \\| |_) | |/ _` | '_ \\| '_ \\ / _ \\ '__|"<<endl;
@@ -270,7 +304,7 @@ void menu()
 	cout<<"             |_|                                        "<<endl;
 
 
-	cout<< "Welcome! We will help to find your favorite way to get your destiny!"<<endl;
+	cout<< "Welcome! We will help to find your favorite way to get your destination!"<<endl;
 
 	while (true){
 
@@ -338,7 +372,7 @@ void menu()
 		break;
 
 	case 1:
-		graph->printShortest(idOrigem, idDestino);
+		graph->printFastest(idOrigem, idDestino);
 		cout <<endl;
 		break;
 
@@ -346,7 +380,7 @@ void menu()
 		//caminho mais curto em km utilizando apenas autocarros,
 		//se não existir autocarros ir a pé.
 		//mostar também o custo total da viagem e o tempo que demora
-		graph->printFastest(idOrigem, idDestino);
+		graph->printShortest(idOrigem, idDestino);
 		cout << endl;
 		break;
 
@@ -423,10 +457,7 @@ void teste(){
 
 int main() {
 	srand(time(NULL));
-	//exercicio1();
-	//exercicio2();
-	//exercicio3();
-	teste();
+
 	menu();
 
 	getchar();

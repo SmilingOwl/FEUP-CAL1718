@@ -51,14 +51,16 @@ double deg2rad(double deg) {
 	return deg * (M_PI / 180);
 }
 
-bool openFile(ifstream &file, const string fileName) {
+bool openFile(string fileName) {
+	ifstream file;
 	file.open(fileName);
 
 	if (!file){
-		cerr << "Error" << endl;
+
 		return false;
 	}
 	else {
+		file.close();
 		return true;
 	}
 }

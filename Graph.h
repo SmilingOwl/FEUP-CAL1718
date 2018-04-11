@@ -33,9 +33,9 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
-const string FILE_A = "aEspinho.txt";
-const string FILE_B = "bEspinho.txt";
-const string FILE_C = "cEspinho.txt";
+string FILE_A = "aEspinho.txt";
+string FILE_B = "bEspinho.txt";
+string FILE_C = "cEspinho.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -562,14 +562,21 @@ void Graph::dijkstraShortestPath(int origin) {
 vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned long long dest){
 
 		vector<unsigned long long> res;
+		vector <unsigned long long> erro;
+
+		erro.push_back(0);
 		this->dijkstraShortestPath(origin);
 		Node* currentVertex = this->findVertex(dest);
 
 		res.push_back(currentVertex->id);
 		while(currentVertex->id != origin)
 		{
+			if (currentVertex->path != NULL){
 			currentVertex = currentVertex->path;
 			res.push_back(currentVertex->id);
+			} else {
+				return erro;
+			}
 		}
 
 		reverse(res.begin(),res.end());
@@ -874,7 +881,11 @@ bool Graph::getShortestPath(unsigned long long origin, unsigned long long destin
 
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
-		return 1;
+		if (pathNodes.at(0) != 0){
+			return 1;
+		}else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
@@ -889,7 +900,12 @@ bool Graph::getFastestPath(unsigned long long origin, unsigned long long destina
 
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
-		return 1;
+		if (pathNodes.at(0) != 0){
+			return 1;
+		}else {
+			return 0;
+		}
+
 	} else {
 		return 0;
 	}
@@ -902,7 +918,11 @@ bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destin
 	pathNodes.clear();
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
-		return 1;
+		if (pathNodes.at(0) != 0){
+			return 1;
+		}else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
@@ -914,7 +934,11 @@ bool Graph::getBusPath(unsigned long long origin, unsigned long long destination
 	pathNodes.clear();
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
-		return 1;
+		if (pathNodes.at(0) != 0){
+			return 1;
+		}else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
@@ -925,7 +949,11 @@ bool Graph::getMetroPath(unsigned long long origin, unsigned long long destinati
 	pathNodes.clear();
 	if (findVertex(origin) && findVertex(destination)){
 		pathNodes = getPath(origin, destination);
-		return 1;
+		if (pathNodes.at(0) != 0){
+			return 1;
+		}else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
@@ -996,15 +1024,16 @@ double Graph::distancePath(){
 
 void Graph::printShortest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
-	this->getShortestPath(origin, destination);
+	int able = 0;
+	able = this->getShortestPath(origin, destination);
 	clock_t end = clock();
 	this->generatePathArestas();
 
 	Node* original = findVertex(origin);
 	Node* final = findVertex(destination);
 
-	if (final->dist == INF || original->dist == INF){
-
+	if (able == 0){
+		cout << "Requested path not found." << endl;
 	}else {
 
 
@@ -1014,21 +1043,20 @@ void Graph::printShortest(unsigned long long origin, unsigned long long destinat
 
 	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
-	printf("\nPreço: %.2f",this->pricePath());
+	printf("\nPreço: %.2f €",this->pricePath());
 
 	}
 }
 void Graph::printFastest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
-	this->getFastestPath(origin, destination);
+	int able = 0;
+	able = this->getFastestPath(origin, destination);
 	clock_t end = clock();
 	this->generatePathArestas();
 
-	Node* original = findVertex(origin);
-	Node* final = findVertex(destination);
 
-	if (final->dist == INF || original->dist == INF){
-
+	if (able == 0){
+		cout << "Requested path not found." << endl;
 	}else {
 
 
@@ -1038,22 +1066,20 @@ void Graph::printFastest(unsigned long long origin, unsigned long long destinati
 
 	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
-	printf("\nPreço: %.2f",this->pricePath());
+	printf("\nPreço: %.2f €",this->pricePath());
 
 	}
 }
 
 void Graph::printCheapest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
-	this->getCheapestPath(origin, destination);
+	int able = 0;
+	able = this->getCheapestPath(origin, destination);
 	clock_t end = clock();
 	this->generatePathArestas();
 
-	Node* original = findVertex(origin);
-	Node* final = findVertex(destination);
-
-	if (final->dist == INF || original->dist == INF){
-
+	if (able == 0){
+		cout << "Requested path not found." << endl;
 	}else {
 
 
@@ -1063,21 +1089,19 @@ void Graph::printCheapest(unsigned long long origin, unsigned long long destinat
 
 	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
-	printf("\nPreço: %.2f",this->pricePath());
+	printf("\nPreço: %.2f €",this->pricePath());
 
 	}
 }
 void Graph::printBus(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
-	this->getBusPath(origin, destination);
+	int able = 0;
+	able = this->getBusPath(origin, destination);
 	clock_t end = clock();
 	this->generatePathArestas();
 
-	Node* original = findVertex(origin);
-	Node* final = findVertex(destination);
-
-	if (final->dist == INF || original->dist == INF){
-
+	if (able == 0){
+		cout << "Requested path not found." << endl;
 	}else {
 
 
@@ -1087,22 +1111,20 @@ void Graph::printBus(unsigned long long origin, unsigned long long destination){
 
 	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
-	printf("\nPreço: %.2f",this->pricePath());
+	printf("\nPreço: %.2f €",this->pricePath());
 
 }
 
 }
 void Graph::printMetro(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
-	this->getMetroPath(origin, destination);
+	int able = 0;
+	able = this->getMetroPath(origin, destination);
 	clock_t end = clock();
 	this->generatePathArestas();
 
-	Node* original = findVertex(origin);
-	Node* final = findVertex(destination);
-
-	if (final->dist == INF || original->dist == INF){
-
+	if (able == 0){
+		cout << "Requested path not found." << endl;
 	}else {
 
 
@@ -1112,7 +1134,7 @@ void Graph::printMetro(unsigned long long origin, unsigned long long destination
 
 	printf("\nElapsed Time: %.6f segundos",elapsed_time);
 	printf("\nDistancia: %.3f Km",this->distancePath());
-	printf("\nPreço: %.2f",this->pricePath());
+	printf("\nPreço: %.2f €",this->pricePath());
 
 	}
 }
