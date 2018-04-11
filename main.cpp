@@ -268,6 +268,8 @@ void menu()
 
 	cout<< "Welcome! We will help to find your favorite way to get your destiny!"<<endl;
 
+	while (true){
+
 	cout<<"Where are you?"<<endl;
 	cout<<"Please choose an ID"<<endl;
 
@@ -300,19 +302,40 @@ void menu()
 	cout << "+------------------------------------------+" << endl;
 	cout << "|   2. Shortest Path                       |" << endl;
 	cout << "+------------------------------------------+" << endl;
-	cout << "|   3. Bus Preferably                      |" << endl;
+	cout << "|   3. Cheapest Path                       |" << endl;
 	cout << "+------------------------------------------+" << endl;
-	cout << "|   4. Metro Preferably                    |" << endl;
+	cout << "|   4. Bus Preferably                      |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   5. Metro Preferably                    |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   0. Exit                                |" << endl;
 	cout << "+------------------------------------------+" << endl;
 
 	int option;
 	cout<<"option: ";
 	cin>>option;
 
+	while (cin.fail()){
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(),'\n');
+		cout <<"option: ";
+		cin >> option;
+		cin.get();
+		cin.get();
+
+	}
+
+
 	switch(option)
 	{
+	case 0:
+		printf("Bye Bye! \n");
+		return;
+		break;
+
 	case 1:
 		graph->printShortest(idOrigem, idDestino);
+		cout <<endl;
 		break;
 
 	case 2:
@@ -320,47 +343,32 @@ void menu()
 		//se não existir autocarros ir a pé.
 		//mostar também o custo total da viagem e o tempo que demora
 		graph->printFastest(idOrigem, idDestino);
+		cout << endl;
 		break;
 
+
 	case 3:
-		//caminho mais curto em km utilizando apenas metro,
-		//se não existir autocarros ir a pé.
-		//mostar também o custo total da viagem e o tempo que demora
+
+		graph->printCheapest(idOrigem,idDestino);
+		cout << endl;
 		break;
 
 	case 4:
-		int option2;
-		cout<<"What do you prefer?"<<endl;
 
-		cout << "+------------------------------------------+" << endl;
-		cout << "|   1. Shortest path                       |" << endl;
-		cout << "+------------------------------------------+" << endl;
-		cout << "|   2. Fastest path                        |" << endl;
-		cout << "+------------------------------------------+" << endl;
-		cout << "|   3. Cheapest path                       |" << endl;
-		cout << "+------------------------------------------+" << endl;
-
-		cout<<"option: ";
-		cin>> option2;
-
-		switch(option2)
-		{
-		case 1:
-			//caminho mais curto combinando a pé, autocarro e metro
-			//mostrar distancia, custo e tempo
-			break;
-		case 2:
-			//caminho mais rápido combinando a pé, autocarro e metro
-			//mostrar distancia, custo e tempo
-			break;
-		case 3:
-			//caminho mais barato combinando a pé, autocarro e metro
-			//mostrar distancia, custo e tempo
-			break;
-		}
+		graph->printBus(idOrigem, idDestino);
+		cout << endl;
 		break;
-	default:
+
+	case 5:
+
+		graph->printMetro(idOrigem, idDestino);
+		cout << endl;
 		break;
+	}
+
+	cout <<endl;
+
+
 	}
 }
 
