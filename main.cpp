@@ -7,13 +7,8 @@
 #include "graphviewer.h"
 #include <fstream>
 #include <iostream>
-#include "Visualizer.h"
 #include <sstream>
 
-/*const double MAX_LAT = 41.186;
-const double MIN_LAT = 41.13921;
-const double MAX_LON = -8.57601;
-const double MIN_LON = -8.65271;*/
 const double MAX_LAT = 41.03854;
 const double MIN_LAT = 40.81641;
 const double MAX_LON = -8.596733;

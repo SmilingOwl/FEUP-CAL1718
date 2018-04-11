@@ -72,7 +72,6 @@ class Graph {
 public:
 	Node *findVertex(unsigned long long id) const;
 	Node *getRandomVertex();
-	Node *getRandomBusVertex();
 	bool addVertex(unsigned long long id, double lat, double lon, int vehicle);
 	bool addVertex(Node* n);
 	bool addEdge(unsigned long long id,unsigned long long sourc, unsigned long long dest, double w, int vehicle,string name);
@@ -88,9 +87,7 @@ public:
 
 
 	void dijkstraShortestPath(int s);
-	void dijkstraShortestPathOld(int s);
-	void unweightedShortestPath(int s);
-	void bellmanFordShortestPath(int s);
+
 	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
 	double getPathDistance(unsigned long long origin, unsigned long long dest);
 
@@ -250,11 +247,7 @@ Node* Graph::getRandomVertex(){
 	return vertexSet.at(r);
 }
 
-Node* Graph::getRandomBusVertex(){
 
-	int r = rand() % vertexSetBus.size();
-	return vertexSetBus.at(r);
-}
 
 /*
  *  Adds a vertex with a given content or info (in) to a graph (this).
@@ -453,8 +446,7 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigne
 
 	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialVertex, 0,nodes);
 	ids->idEdges++;
-	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
-	//this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0,nodes);
+
 	ids->idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes.at(iterator) -1; i++){
 		printf("node");
@@ -487,14 +479,12 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigne
 		this->writeEdge(CHANGEVEHICLE, nextVertex, nextMetroVertex, 0,nodes);
 		ids->idEdges++;
 
-		//this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextVertex, 0,nodes);
 		ids->idEdges++;
 
 
 		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2,nodes);
 		ids->idEdges++;
 
-		//this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2,nodes);
 		ids->idEdges++;
 
 		initialVertex = nextVertex;
@@ -534,7 +524,7 @@ void Graph::dijkstraShortestPath(int origin) {
 	MutablePriorityQueue<Node> q;
 	q.insert(vertexOrigin);
 
-	//TODO
+
 
 
 
@@ -851,19 +841,10 @@ void Graph::printView(){
 
 				int idAresta = 1000 * idOrigem + idDestino;
 
-				/*
-				//string weight = std::to_string(adj.at(j).getWeight());
-				string weight = doubleToString(adj.at(j).getWeight());
 
-
-				if(weight.find(".") != string::npos){
-					for (size_t i = weight.find(".") + 2; i < weight.size(); i++)
-						weight.erase(i);
-				}
-				*/
 
 				gv->addEdge(idAresta, idOrigem, idDestino, EdgeType::DIRECTED);
-				//gv->setEdgeLabel(idAresta, weight);
+
 			}
 
 		}

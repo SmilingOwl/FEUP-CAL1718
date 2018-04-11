@@ -16,9 +16,7 @@ string StreetsFileName;
 
 
 	double getDistance(double lat1, double lon1, double lat2, double lon2);
-	double getTime(double distance, double velocity);
 	double deg2rad(double deg);
-
 
 	bool openFile(ifstream &file, const string fileName);
 
@@ -41,11 +39,6 @@ double getDistance(double lat1, double lon1, double lat2,
 	return d;
 }
 
-
-
-double getTime(double distance, double velocity) {
-	return distance / velocity;
-}
 
 double deg2rad(double deg) {
 	return deg * (M_PI / 180);
