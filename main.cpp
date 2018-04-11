@@ -10,12 +10,16 @@
 #include "Visualizer.h"
 #include <sstream>
 
-const float MAX_LAT = 41.186;
-const float MIN_LAT = 41.13921;
-const float MAX_LON = -8.57601;
-const float MIN_LON = -8.65271;
-const int IMAGE_X = 2000;
-const int IMAGE_Y = 2464;
+/*const double MAX_LAT = 41.186;
+const double MIN_LAT = 41.13921;
+const double MAX_LON = -8.57601;
+const double MIN_LON = -8.65271;*/
+const double MAX_LAT = 41.03854;
+const double MIN_LAT = 40.81641;
+const double MAX_LON = -8.596733;
+const double MIN_LON = -8.695133;
+const int IMAGE_X = 2000;//2000
+const int IMAGE_Y = 2464;//2464
 
 
 void teste();
@@ -363,8 +367,8 @@ void menu()
 
 		graph->printMetro(idOrigem, idDestino);
 		cout << endl;
-		break;
-	}
+			break;
+		}
 
 	cout <<endl;
 
@@ -391,8 +395,8 @@ void teste(){
 	loadEdges(nodes,edges);
 	//printf("edges done!");
 
-	vector<int> buses = {10, 15, 9,10,10};
-	vector<int> metro = {5, 3, 4,5,5};
+	vector<int> buses = {10, 15, 9,10,10,10,10};
+	vector<int> metro = {5, 3, 4,5,5,5,5};
 
 	//graph->generateBusLines(buses,nodes);
 	//graph->generateMetroLines(metro,nodes);

@@ -33,9 +33,9 @@ using namespace std;
 
 #define INF std::numeric_limits<double>::max()
 
-const string FILE_A = "a1000.txt";
-const string FILE_B = "b1000.txt";
-const string FILE_C = "c1000.txt";
+const string FILE_A = "aEspinho.txt";
+const string FILE_B = "bEspinho.txt";
+const string FILE_C = "cEspinho.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -208,8 +208,8 @@ public:
 
 
 
-unsigned long long IDs::idEdges = 1000;
-unsigned long long IDs::idNodes = 1000;
+unsigned long long IDs::idEdges = 1100;
+unsigned long long IDs::idNodes = 1100;
 unsigned long long IDs::busNumber = 600;
 unsigned long long IDs::metroNumber = 0;
 
@@ -461,7 +461,7 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigne
 
 		do{
 			flag = false;
-			nextVertex = this->getRandomVertexInDistance(initialVertex, 0.5);
+			nextVertex = this->getRandomVertexInDistance(initialVertex, 0.1);
 			for (int n = 0; n < pastNodes.size(); n++){
 				if (pastNodes.at(n)==nextVertex->id){
 					flag = true;
