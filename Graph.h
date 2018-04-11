@@ -55,6 +55,8 @@ class IDs{
 public:
 	static unsigned long long idEdges;
 	static unsigned long long idNodes;
+	static unsigned long long busNumber;
+	static unsigned long long metroNumber;
 };
 
 
@@ -68,7 +70,6 @@ class Graph {
 
 
 public:
-	bool impossible;
 	Node *findVertex(unsigned long long id) const;
 	Node *getRandomVertex();
 	Node *getRandomBusVertex();
@@ -93,8 +94,8 @@ public:
 	vector<unsigned long long> getPath(unsigned long long origin,unsigned long long dest);
 	double getPathDistance(unsigned long long origin, unsigned long long dest);
 
-	bool generateBusLines(vector<int> numberOfNodes);
-	bool generateMetroLines(vector<int> numberOfNodes);
+	bool generateBusLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes);
+	bool generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes);
 
 	void printView();
 
@@ -139,7 +140,7 @@ public:
 	void writeNodeMetro(Node* initialMetroVertex);
 
 	void writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle);
-
+	void writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle,vector<pair<int,unsigned long long>> &nodes);
 	void writeStreet(int id, string name);
 
 };
@@ -207,8 +208,10 @@ public:
 
 
 
-unsigned long long IDs::idEdges = 1;
-unsigned long long IDs::idNodes = 1;
+unsigned long long IDs::idEdges = 1000;
+unsigned long long IDs::idNodes = 1000;
+unsigned long long IDs::busNumber = 600;
+unsigned long long IDs::metroNumber = 0;
 
 
 
@@ -300,7 +303,7 @@ bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned lon
 	return true;
 }
 
-bool Graph::generateBusLines(vector<int> numberOfNodes){
+bool Graph::generateBusLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes){
 	IDs * ids = new IDs();
 	vector<int> pastNodes;
 
@@ -321,19 +324,19 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 		bool flag = false;
 
 
-		srand(time(NULL));
-		int busNumber = rand() % 899 + 100;
+		//srand(time(NULL));
+		int busNumber = ids->busNumber;
 		string lineName = "Autocarro " + to_string(busNumber);
 		this->writeStreet(busNumber,lineName);
 
-
+		ids->busNumber++;
 
 		this->writeNodeBus(initialBusVertex);
 
-		this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0);
+		this->writeEdge(CHANGEVEHICLE, initialBusVertex, initialVertex, 0,nodes);
 		ids->idEdges++;
 
-		this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0);
+		//this->writeEdge(CHANGEVEHICLE, initialVertex, initialBusVertex, 0,nodes);
 		ids->idEdges++;
 
 		int fails = 25;
@@ -377,17 +380,17 @@ bool Graph::generateBusLines(vector<int> numberOfNodes){
 
 				this->writeNodeBus(nextBusVertex);
 
-				this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0);
+				this->writeEdge(CHANGEVEHICLE, nextVertex, nextBusVertex, 0,nodes);
 				ids->idEdges++;
 
-				this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0);
+				//this->writeEdge(CHANGEVEHICLE, nextBusVertex, nextVertex, 0,nodes);
 				ids->idEdges++;
 
 
-				this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1);
+				this->writeEdge(busNumber, initialBusVertex, nextBusVertex, 1,nodes);
 				ids->idEdges++;
 
-				this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1);
+				//this->writeEdge(busNumber, nextBusVertex, initialBusVertex, 1,nodes);
 				ids->idEdges++;
 
 				initialVertex = nextVertex;
@@ -420,7 +423,7 @@ Node* Graph::getRandomVertexInDistance(Node* origin, double distance){
 
 }
 
-bool Graph::generateMetroLines(vector<int> numberOfNodes){
+bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes){
 	IDs * ids = new IDs();
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
 	vector<int> pastNodes;
@@ -440,17 +443,18 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 	pastNodes.push_back(initialVertex->id);
 
 
-	int metroLine = rand() % 9;
+	int metroLine = ids->metroNumber;
 	string lineName = "Metro Linha " + metroName[metroLine];
 	this->writeStreet(metroLine,lineName);
+	ids->metroNumber++;
 
 
 	this->writeNodeMetro(initialMetroVertex);
 
-	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialVertex, 0);
+	this->writeEdge(CHANGEVEHICLE, initialMetroVertex, initialVertex, 0,nodes);
 	ids->idEdges++;
 	//this->addEdge(CHANGEVEHICLE,initialBusVertex->getID(),initialMetroVertex->getID(),INTERCHANGE,0);
-	this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0);
+	//this->writeEdge(CHANGEVEHICLE, initialVertex, initialMetroVertex, 0,nodes);
 	ids->idEdges++;
 	for (unsigned int i = 1; i < numberOfNodes.at(iterator) -1; i++){
 		printf("node");
@@ -480,17 +484,17 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes){
 		this->writeNodeMetro(nextMetroVertex);
 
 
-		this->writeEdge(CHANGEVEHICLE, nextVertex, nextMetroVertex, 0);
+		this->writeEdge(CHANGEVEHICLE, nextVertex, nextMetroVertex, 0,nodes);
 		ids->idEdges++;
 
-		this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextVertex, 0);
+		//this->writeEdge(CHANGEVEHICLE, nextMetroVertex, nextVertex, 0,nodes);
 		ids->idEdges++;
 
 
-		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2);
+		this->writeEdge(metroLine, initialMetroVertex, nextMetroVertex, 2,nodes);
 		ids->idEdges++;
 
-		this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2);
+		//this->writeEdge(metroLine, nextMetroVertex, initialMetroVertex, 2,nodes);
 		ids->idEdges++;
 
 		initialVertex = nextVertex;
@@ -530,14 +534,14 @@ void Graph::dijkstraShortestPath(int origin) {
 	MutablePriorityQueue<Node> q;
 	q.insert(vertexOrigin);
 
-
+	//TODO
 
 
 
 
 	while (!q.empty()) {
 		Node* v = q.extractMin();
-		for (Aresta edge : v->adj) {
+		for (auto edge : v->adj) {
 			Node* w = edge.dest;
 			if (w->dist > (v->dist + edge.weight)) {
 				w->dist = (v->dist + edge.weight);
@@ -1085,7 +1089,7 @@ void Graph::printBus(unsigned long long origin, unsigned long long destination){
 	printf("\nDistancia: %.3f Km",this->distancePath());
 	printf("\nPreço: %.2f",this->pricePath());
 
-	}
+}
 
 }
 void Graph::printMetro(unsigned long long origin, unsigned long long destination){
@@ -1145,7 +1149,41 @@ void Graph::writeNodeMetro(Node* initialMetroVertex ) {
 				myfile.close();
 			}
 }
+void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle,vector<pair<int,unsigned long long>> &nodes) {
 
+	unsigned long long iV,fV;
+	iV=initialVertex->getID();
+	fV=finalVertex->getID();
+	for(unsigned int i=0; i < nodes.size();i++)
+		{
+			if( nodes.at(i).first==initialVertex->getID())
+			{
+				iV= nodes.at(i).second;
+			}
+		}
+	for(unsigned int i=0; i < nodes.size();i++)
+			{
+				if( nodes.at(i).first==finalVertex->getID())
+				{
+					fV= nodes.at(i).second;
+				}
+			}
+	string lll;
+			lll= FILE_C;
+
+			ofstream myfile;
+				myfile.open(lll,ios::app);// escrever no fim do ficheiro.
+				if (myfile.is_open())
+				{
+					myfile << "\n"<< idNewStreet << ";"<< iV<< ";"<<fV << ";" << vehicle;
+
+					myfile.close();
+				}
+
+				printf("write edge \n");
+
+
+}
 void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle) {
 
 	string lll;
