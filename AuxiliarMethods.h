@@ -12,20 +12,18 @@ string EdgesFileName;
 string StreetsFileName;
 
 
-
-
-
+//DEClARATION
 	double getDistance(double lat1, double lon1, double lat2, double lon2);
 	double deg2rad(double deg);
-
 	bool openFile(ifstream &file, const string fileName);
 
+//METHODS
 
 
-
-
-
-//Haversine Formula (kilometers)
+/**
+*Haversine Formula (kilometers)
+*This function returns the distance between the two coordinates given as parameters
+*/
 double getDistance(double lat1, double lon1, double lat2,
 		double lon2) {
 	double R = 6371; // Radius of the earth in km
@@ -39,11 +37,16 @@ double getDistance(double lat1, double lon1, double lat2,
 	return d;
 }
 
-
+/**
+* this function converts degrees to radians
+*/
 double deg2rad(double deg) {
 	return deg * (M_PI / 180);
 }
 
+/**
+*this function checks if it is possible to open a file, returning true if possible and false otherwise
+*/
 bool openFile(string fileName) {
 	ifstream file;
 	file.open(fileName);

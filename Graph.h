@@ -296,6 +296,9 @@ bool Graph::addEdge(unsigned long long id,unsigned long long sourc, unsigned lon
 	return true;
 }
 
+/**
+*Generates random Bus Lines, returning true if successful, false otherwise.
+*/
 bool Graph::generateBusLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes){
 	IDs * ids = new IDs();
 	vector<int> pastNodes;
@@ -399,11 +402,14 @@ bool Graph::generateBusLines(vector<int> numberOfNodes,vector<pair<int,unsigned 
 
 }
 
+/**
+*Used to generate random Metro lines, returns a random node within a circle of radius distance and center the origin vertex.
+*/
 Node* Graph::getRandomVertexInDistance(Node* origin, double distance){
 	vector<Node*> nodesInDistance;
 
 	for (unsigned int i = 0; i < vertexSet.size(); i++){
-		if(getDistanceVertex(origin,vertexSet.at(i))<=distance){
+		if(getDistanceVertex(origin,vertexSet.at(i))<=distance && origin->getID() != vertexSet.at(i)){
 			nodesInDistance.push_back(vertexSet.at(i));
 		}
 	}
@@ -416,6 +422,9 @@ Node* Graph::getRandomVertexInDistance(Node* origin, double distance){
 
 }
 
+/**
+*Generates random Metro Lines, returning true if successful, false otherwise.
+*/
 bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigned long long>> &nodes){
 	IDs * ids = new IDs();
 	string metroName[] = {"A","B","C","D","E","F","G","H","I"};
@@ -503,11 +512,9 @@ bool Graph::generateMetroLines(vector<int> numberOfNodes,vector<pair<int,unsigne
 }
 
 
-
-
-/**************** Single Source Shortest Path algorithms ************/
-
-
+/**
+*Dijkstra Shortest Path Algorithm
+*/
 void Graph::dijkstraShortestPath(int origin) {
 
 
@@ -548,7 +555,9 @@ void Graph::dijkstraShortestPath(int origin) {
 }
 
 
-
+/**
+*Returns a vector with the ID of all nodes that belong to a path between origin and dest nodes, acording to the algorithm.
+*/
 vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned long long dest){
 
 		vector<unsigned long long> res;
@@ -578,6 +587,9 @@ vector<unsigned long long> Graph::getPath(unsigned long long origin,unsigned lon
 		return res;
 }
 
+/**
+*Returns the distance of a path.
+*/
 double Graph::getPathDistance(unsigned long long origin, unsigned long long dest){
 
 	double distance = 0;
@@ -704,7 +716,9 @@ Node* Node::getPath() const {
 	return this->path;
 }
 
-
+/**
+*Returns a random adjacent vertex from the original.
+*/
 Node* Node::getRandomVertexDestination(){
 
 
@@ -747,30 +761,37 @@ Node* Aresta::getDest(){
 	return this->dest;
 }
 
+/**
+*Sets the vehicle of the edge.
+*/
 void Aresta::setVehicle(int n){
 	this->vehicle = n;
 }
 
+/**
+*Gets the vehicle of the edge.
+*/
 int Aresta::getVehicle(){
 	return this->vehicle;
 }
 
+/**
+*Gets the distance of the edge.
+*/
 double Aresta::getDistance(){
 	return this->distance;
 }
 
-/*
- * setWeight (int parameter)
- * parameter = 0 -> o peso é a distancia
- * parameter = 1 -> o peso é o tempo
- * parameter = 2 -> o peso é o custo (NOT WORKING)
- * parameter = 3 -> bus é o transporte preferido
- * parameter = 4 -> metro é o transporte preferido
- *
- *
- *
- */
 
+
+/**
+ *This function sets the weight of each Edge/Aresta acording to the chosen optimization.
+ * parameter = 0 -> distance
+ * parameter = 1 -> time
+ * parameter = 2 -> cost
+ * parameter = 3 -> bus preferably
+ * parameter = 4 -> metro preferably
+*/
 void Aresta::setWeight(int parameter){
 	if (parameter == 0){
 		this->weight = distance;
@@ -809,6 +830,9 @@ void Aresta::setWeight(int parameter){
 	}
 }
 
+/**
+*This function does communication with the graphviewer application.
+*/
 void Graph::printView(){
 		gv = new GraphViewer(1000,1000,false);
 		gv->createWindow(800, 800);
@@ -858,7 +882,9 @@ void Graph::printView(){
 }
 
 
-
+/**
+*This function generates the path when the optimization is Shortest Path. Returns 1 if possible, else returns 0
+*/
 bool Graph::getShortestPath(unsigned long long origin, unsigned long long destination){
 
 	this->updateWeights(0);
@@ -878,6 +904,9 @@ bool Graph::getShortestPath(unsigned long long origin, unsigned long long destin
 
 }
 
+/**
+*This function generates the path when the optimization is Fastest Path. Returns 1 if possible, else returns 0
+*/
 bool Graph::getFastestPath(unsigned long long origin, unsigned long long destination){
 
 	this->updateWeights(1);
@@ -896,8 +925,11 @@ bool Graph::getFastestPath(unsigned long long origin, unsigned long long destina
 		return 0;
 	}
 
-}//caminho mais curto em km apenas !
+}
 
+/**
+*This function generates the path when the optimization is Cheapest Path. Returns 1 if possible, else returns 0
+*/
 bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destination){
 
 	this->updateWeights(2);
@@ -915,6 +947,9 @@ bool Graph::getCheapestPath(unsigned long long origin, unsigned long long destin
 
 }
 
+/**
+*This function generates the path when the optimization is Bus Preferably. Returns 1 if possible, else returns 0
+*/
 bool Graph::getBusPath(unsigned long long origin, unsigned long long destination){
 	this->updateWeights(3);
 	pathNodes.clear();
@@ -930,6 +965,9 @@ bool Graph::getBusPath(unsigned long long origin, unsigned long long destination
 	}
 }
 
+/**
+*This function generates the path when the optimization is Metro Preferably. Returns 1 if possible, else returns 0
+*/
 bool Graph::getMetroPath(unsigned long long origin, unsigned long long destination){
 	this->updateWeights(4);
 	pathNodes.clear();
@@ -945,8 +983,11 @@ bool Graph::getMetroPath(unsigned long long origin, unsigned long long destinati
 	}
 }
 
-//run this after generated pathNodes
 
+
+/**
+*This function generates a vector of Edges from the vector of the nodes of a path
+*/
 void Graph::generatePathArestas(){
 	pathArestas.clear();
 	for (unsigned int i = 0; i < this->pathNodes.size() - 1;i++){
@@ -963,6 +1004,9 @@ void Graph::generatePathArestas(){
 
 }
 
+/**
+*This function prints the Streets of a path
+*/
 void Graph::printStreetPath(){
 	vector<string> streets;
 	int number = 2;
@@ -984,7 +1028,9 @@ void Graph::printStreetPath(){
 
 }
 
-
+/**
+*This function returns the total price of a path
+*/
 double Graph::pricePath(){
 	double totalPrice = 0;
 	for (unsigned int i = 0; i < this->pathArestas.size(); i++){
@@ -999,6 +1045,9 @@ double Graph::pricePath(){
 
 }
 
+/**
+*This function returns the total distance of a path
+*/
 double Graph::distancePath(){
 	double totalDistance = 0;
 	for (unsigned int i = 0; i <this->pathArestas.size(); i++){
@@ -1008,6 +1057,9 @@ double Graph::distancePath(){
 	return totalDistance;
 }
 
+/**
+*This function prints the result when the optimization is: Shortest Path
+*/
 void Graph::printShortest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
 	int able = 0;
@@ -1033,6 +1085,10 @@ void Graph::printShortest(unsigned long long origin, unsigned long long destinat
 
 	}
 }
+
+/**
+*This function prints the result when the optimization is: Fastest Path
+*/
 void Graph::printFastest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
 	int able = 0;
@@ -1057,6 +1113,9 @@ void Graph::printFastest(unsigned long long origin, unsigned long long destinati
 	}
 }
 
+/**
+*This function prints the result when the optimization is: Cheapest Path
+*/
 void Graph::printCheapest(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
 	int able = 0;
@@ -1079,6 +1138,10 @@ void Graph::printCheapest(unsigned long long origin, unsigned long long destinat
 
 	}
 }
+
+/**
+*This function prints the result when the optimization is: Bus Preferably
+*/
 void Graph::printBus(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
 	int able = 0;
@@ -1102,6 +1165,10 @@ void Graph::printBus(unsigned long long origin, unsigned long long destination){
 }
 
 }
+
+/**
+*This function prints the result when the optimization is: Metro Preferably
+*/
 void Graph::printMetro(unsigned long long origin, unsigned long long destination){
 	clock_t begin = clock();
 	int able = 0;
@@ -1125,7 +1192,9 @@ void Graph::printMetro(unsigned long long origin, unsigned long long destination
 	}
 }
 
-
+/**
+*This function writes a node of Bus to the file A
+*/
 void Graph::writeNodeBus(Node* initialBusVertex) {
 
 	string lll;
@@ -1143,6 +1212,10 @@ void Graph::writeNodeBus(Node* initialBusVertex) {
 			printf("write node bus \n");
 }
 
+
+/**
+*This function writes a node of Metro to the file A
+*/
 void Graph::writeNodeMetro(Node* initialMetroVertex ) {
 
 	string lll;
@@ -1157,6 +1230,10 @@ void Graph::writeNodeMetro(Node* initialMetroVertex ) {
 				myfile.close();
 			}
 }
+
+/**
+*This function writes Edge related info to the file C
+*/
 void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle,vector<pair<int,unsigned long long>> &nodes) {
 
 	unsigned long long iV,fV;
@@ -1192,6 +1269,10 @@ void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, i
 
 
 }
+
+/**
+*This function writes Edge related info to the file C
+*/
 void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle) {
 
 	string lll;
@@ -1211,6 +1292,9 @@ void Graph::writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, i
 
 }
 
+/**
+*This function writes Street related info to the file B
+*/
 void Graph::writeStreet(int id, string name){
     string ll;
 	ll= FILE_B;

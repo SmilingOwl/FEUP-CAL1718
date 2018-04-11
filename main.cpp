@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+//CONSTANTS
 const double MAX_LAT = 41.03854;
 const double MIN_LAT = 40.81641;
 const double MAX_LON = -8.596733;
@@ -19,16 +20,19 @@ const int IMAGE_Y = 2464;//2464
 
 void teste();
 
-
 Graph* graph = new Graph();
 
 GraphViewer *gv;
 
-
+//Struct Aresta
 struct aresta {
 	unsigned long long id;
 	string nome;
 	bool is2Way;
+
+	/**
+	* Aresta constructor
+	*/
 	aresta(unsigned long long i, string n, bool is2)
 	{
 		id = i;
@@ -37,7 +41,9 @@ struct aresta {
 	}
 };
 
-
+/**
+* This function loads the data from the nodes file into Graph.h structure
+*/
 void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 	string line;
 
@@ -94,7 +100,9 @@ void loadNodes(vector<pair<int,unsigned long long>> &nodes) {
 	}
 }
 
-
+/**
+* This function loads the data from the edges file into Graph.h structure
+*/
 void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<aresta> &edges){
 	ifstream file(FILE_C);
 
@@ -207,6 +215,9 @@ void loadEdges(const vector<pair<int,unsigned long long>> &nodes, const vector<a
 
 }
 
+/**
+* This function loads the data from the street file into Graph.h structure
+*/
 void loadStreets(vector<aresta> &edges){
 	ifstream file(FILE_B);
 	string line;
@@ -245,6 +256,9 @@ void loadStreets(vector<aresta> &edges){
 
 }
 
+/**
+*This function checks if the id given as parameter exists, return true if the node is found and false otherwise
+*/
 bool checkIfNodeExists(unsigned long long id){
 	for (unsigned int i = 0; i < graph->getVertexSet().size(); i++){
 		if(graph->getVertexSet().at(i)->getID()==id){
@@ -254,6 +268,9 @@ bool checkIfNodeExists(unsigned long long id){
 	return false;
 }
 
+/**
+*This function prints the programm menu
+*/
 void menu()
 {
 
@@ -429,27 +446,9 @@ void teste(){
 
 	//graph->generateBusLines(buses,nodes);
 	//graph->generateMetroLines(metro,nodes);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
+//MAIN
 int main() {
 	srand(time(NULL));
 
