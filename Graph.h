@@ -409,7 +409,7 @@ Node* Graph::getRandomVertexInDistance(Node* origin, double distance){
 	vector<Node*> nodesInDistance;
 
 	for (unsigned int i = 0; i < vertexSet.size(); i++){
-		if(getDistanceVertex(origin,vertexSet.at(i))<=distance && origin->getID() != vertexSet.at(i)){
+		if(getDistanceVertex(origin,vertexSet.at(i))<=distance && origin->getID() != vertexSet.at(i)->getID()){
 			nodesInDistance.push_back(vertexSet.at(i));
 		}
 	}
