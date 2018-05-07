@@ -140,6 +140,11 @@ public:
 	void writeEdge(int idNewStreet, Node* initialVertex, Node* finalVertex, int vehicle,vector<pair<int,unsigned long long>> &nodes);
 	void writeStreet(int id, string name);
 
+
+	//parte 2
+
+	unsigned long long pesquisaExata(string txt);
+
 };
 
 class Aresta {
@@ -172,7 +177,7 @@ class Node {
 	double lat, lon;
 	Node *path = NULL;
 	int queueIndex = 0; 		// required by MutablePriorityQueue
-
+	string name;
 
 
 	bool processing = false;
@@ -192,6 +197,7 @@ public:
 	double getLat() const;
 	double getLon() const;
 	int getVehicle() const;
+	string getName() const;
 	Node* getRandomVertexDestination();
 	vector<Aresta> getAdj();
 	void updateWeights(int parameter); //0 - distance, 1 - time, 2 - price
@@ -635,6 +641,9 @@ int Node::getVehicle() const{
 	return this->vehicle;
 }
 
+string Node::getName() const {
+	return this->name;
+}
 
 
 
@@ -1311,6 +1320,18 @@ void Graph::writeStreet(int id, string name){
 }
 
 
+//parte 2
+
+unsigned long long Graph::pesquisaExata(string txt){
+
+	for (int i = 0 ; i<this->vertexSet.size; i++){
+		if (vertexSet.at(i)->name == txt && vertexSet.at(i)->vehicle == 0){
+			return vertexSet.at(i)->id;
+		}
+	}
+
+	return -1;
+}
 
 
 
