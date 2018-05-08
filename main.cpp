@@ -1,5 +1,6 @@
 
 
+
 #include <iostream>
 #include "Graph.h"
 #include "AuxiliarMethods.h"
@@ -358,6 +359,8 @@ void menu()
 	cout << "+------------------------------------------+" << endl;
 	cout << "|   5. Metro Preferably                    |" << endl;
 	cout << "+------------------------------------------+" << endl;
+	cout << "|   6. Print all nodes (test)              |" << endl;
+	cout << "+------------------------------------------+" << endl;
 	cout << "|   0. Exit                                |" << endl;
 	cout << "+------------------------------------------+" << endl;
 
@@ -413,7 +416,12 @@ void menu()
 
 		graph->printMetro(idOrigem, idDestino);
 		cout << endl;
-			break;
+		break;
+	case 6:
+		graph->giveNameToAllNodes();
+		graph->printAllNodesNames();
+		cout << endl;
+		break;
 		}
 
 	cout <<endl;

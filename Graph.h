@@ -144,6 +144,8 @@ public:
 	//parte 2
 
 	unsigned long long pesquisaExata(string txt);
+	void giveNameToAllNodes();
+	void printAllNodesNames();
 
 };
 
@@ -197,10 +199,13 @@ public:
 	double getLat() const;
 	double getLon() const;
 	int getVehicle() const;
+	void setName(string name);
+	void giveName();
 	string getName() const;
 	Node* getRandomVertexDestination();
 	vector<Aresta> getAdj();
 	void updateWeights(int parameter); //0 - distance, 1 - time, 2 - price
+
 
 	friend class Graph;
 	friend class MutablePriorityQueue<Node>;
@@ -641,8 +646,25 @@ int Node::getVehicle() const{
 	return this->vehicle;
 }
 
+void Node::setName(string name) {
+	this->name = name;
+}
 string Node::getName() const {
 	return this->name;
+}
+
+void Node::giveName(){
+
+	bool flag = false;
+	while(!flag){
+
+		int r = rand() % this->adj.size();
+		if (adj.at(r).name != "MUDANCA DE TRANSPORTE"){
+			this->name = adj.at(r).name;
+			flag = true;
+		}
+	}
+
 }
 
 
@@ -1324,13 +1346,26 @@ void Graph::writeStreet(int id, string name){
 
 unsigned long long Graph::pesquisaExata(string txt){
 
-	for (int i = 0 ; i<this->vertexSet.size; i++){
+	for (int i = 0 ; i<this->vertexSet.size(); i++){
 		if (vertexSet.at(i)->name == txt && vertexSet.at(i)->vehicle == 0){
 			return vertexSet.at(i)->id;
 		}
 	}
 
 	return -1;
+}
+
+void Graph::giveNameToAllNodes(){
+	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
+		vertexSet.at(i)->giveName();
+	}
+
+}
+
+void Graph::printAllNodesNames(){
+	for(unsigned int i = 0; i < vertexSet.size(); i++){
+		cout << i << ": " << vertexSet.at(i)->name << endl;
+	}
 }
 
 
