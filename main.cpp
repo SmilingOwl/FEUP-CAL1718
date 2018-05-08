@@ -269,8 +269,42 @@ bool checkIfNodeExists(unsigned long long id){
 	return false;
 }
 
+void loadVertexNames(){
+	string line;
+	vector<string> vertexTemp;
+
+	ifstream file(FILE_NAMES);
+
+
+
+	if (file.is_open()) {
+		while (!file.eof()) {
+
+
+			getline(file,line);
+
+
+			vertexTemp.push_back(line);
+
+
+
+
+		}
+
+		file.close();
+
+		graph->vertexNames = vertexTemp;
+
+		graph->giveNameToAllNodes();
+
+		return;
+	} else {
+		cerr << "\n File not found!\n";
+	}
+}
+
 /**
-*This function prints the programm menu
+*This function prints the program menu
 */
 void menu()
 {
@@ -448,6 +482,8 @@ void teste(){
 
 	loadEdges(nodes,edges);
 	//printf("edges done!");
+
+	loadVertexNames();
 
 	vector<int> buses = {10, 15, 9,10,10,10,10};
 	vector<int> metro = {5, 3, 4,5,5,5,5};

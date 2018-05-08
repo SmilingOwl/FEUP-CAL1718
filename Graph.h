@@ -36,6 +36,7 @@ using namespace std;
 string FILE_A = "aEspinho.txt";
 string FILE_B = "bEspinho.txt";
 string FILE_C = "cEspinho.txt";
+string FILE_NAMES = "paragens.txt";
 const int CHANGEVEHICLE = 12345; //STREET NAME
 
 const double INTERCHANGE = 1; // km
@@ -83,6 +84,7 @@ public:
 	vector<int> edgeC;
 	vector<string> nameC;
 	vector<bool> twoWay;
+	vector<string> vertexNames;
 
 
 
@@ -1357,7 +1359,7 @@ unsigned long long Graph::pesquisaExata(string txt){
 
 void Graph::giveNameToAllNodes(){
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
-		vertexSet.at(i)->giveName();
+		vertexSet.at(i)->setName(vertexNames.at(i));
 	}
 
 }
