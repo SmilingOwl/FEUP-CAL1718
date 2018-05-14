@@ -1354,7 +1354,7 @@ unsigned long long Graph::pesquisaExata(string txt){
 		}
 	}
 
-	return -1;
+	return 0;
 }
 
 void Graph::giveNameToAllNodes(){

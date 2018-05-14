@@ -303,81 +303,13 @@ void loadVertexNames(){
 	}
 }
 
+//------------------------MENUS----------------------------------
+
 /**
-*This function prints the program menu
-*/
-void menu()
-{
+ * This function prints the ApproximateSearch menu
+ */
 
-	bool file = false;
-	string fileA;
-	string fileB;
-	string fileC;
-
-	while(!file){
-		cout << "Select file A: " << endl;
-		cin >> fileA;
-		cout << "Select file B: " << endl;
-		cin >> fileB;
-		cout << "Select file C: " << endl;
-		cin >> fileC;
-
-		if (openFile(fileA) && openFile(fileB) && openFile(fileC)){
-			FILE_A = fileA;
-			FILE_B = fileB;
-			FILE_C = fileC;
-
-			file = true;
-		} else {
-			cerr << "Erro na introducao do nome dos ficheiros! (Press Enter to continue)" << endl;
-			cin.ignore();
-			cin.get();
-		}
-
-
-	}
-
-	cout << "Loading..."<< endl;
-
-	teste();
-
-
-
-	cout<<"  _____     _       ____  _                             "<<endl;
-	cout<<" |_   _| __(_)_ __ |  _ \\| | __ _ _ __  _ __   ___ _ __ "<<endl;
-	cout<<"   | || '__| | '_ \\| |_) | |/ _` | '_ \\| '_ \\ / _ \\ '__|"<<endl;
-	cout<<"   | || |  | | |_) |  __/| | (_| | | | | | | |  __/ |   "<<endl;
-	cout<<"   |_||_|  |_| .__/|_|   |_|\\__,_|_| |_|_| |_|\\___|_|   "<<endl;
-	cout<<"             |_|                                        "<<endl;
-
-
-	cout<< "Welcome! We will help to find your favorite way to get your destination!"<<endl;
-
-	while (true){
-
-	cout<<"Where are you?"<<endl;
-	cout<<"Please choose an ID"<<endl;
-
-	unsigned long long idOrigem;
-	cin>>idOrigem;
-	while (!checkIfNodeExists(idOrigem)){
-		cout<<"Please choose a valid ID"<<endl;
-		cin >>idOrigem;
-	}
-
-
-
-	cout<<"Where do you want to go?"<<endl;
-	cout<<"Please choose an ID"<<endl;
-
-	unsigned long long idDestino;
-	cin>>idDestino;
-	while (!checkIfNodeExists(idDestino) || (idDestino == idOrigem)){
-		cout<<"Please choose a valid ID"<<endl;
-		cin >>idDestino;
-	}
-
-
+void pathPreferencesMenu(unsigned long long idOrigem, unsigned long long idDestino){
 
 	cout<<"Choose your preferences!"<<endl;
 
@@ -392,8 +324,6 @@ void menu()
 	cout << "|   4. Bus Preferably                      |" << endl;
 	cout << "+------------------------------------------+" << endl;
 	cout << "|   5. Metro Preferably                    |" << endl;
-	cout << "+------------------------------------------+" << endl;
-	cout << "|   6. Print all nodes (test)              |" << endl;
 	cout << "+------------------------------------------+" << endl;
 	cout << "|   0. Exit                                |" << endl;
 	cout << "+------------------------------------------+" << endl;
@@ -427,8 +357,8 @@ void menu()
 
 	case 2:
 		//caminho mais curto em km utilizando apenas autocarros,
-		//se não existir autocarros ir a pé.
-		//mostar também o custo total da viagem e o tempo que demora
+		//se nÃ£o existir autocarros ir a pÃ©.
+		//mostar tambÃ©m o custo total da viagem e o tempo que demora
 		graph->printShortest(idOrigem, idDestino);
 		cout << endl;
 		break;
@@ -451,17 +381,235 @@ void menu()
 		graph->printMetro(idOrigem, idDestino);
 		cout << endl;
 		break;
-	case 6:
+		}
+
+
+}
+void ByApproximateSearchMenu()
+{
+	string origem;
+		string destino;
+		cout<<"Where are you?"<<endl;
+		cout<<"Please insert your location"<<endl;
+
+		cin.ignore();
+		getline(cin, origem);
+		while (origem.size() == 0)
+		{
+			cin.ignore();
+			getline(cin, origem);
+		}
+
+		cout<<"Where do you want to go?"<<endl;
+		cout<<"Please insert your destination"<<endl;
+
+		cin.ignore();
+			getline(cin, destino);
+			while (destino.size() == 0)
+			{
+				cin.ignore();
+				getline(cin, destino);
+			}
+
+			//PESQUISA APROXIMADA
+}
+
+/**
+ * This function prints the ExactSearch menu
+ */
+void ByExactSearchMenu()
+{
+	bool flagOrigem = false;
+	bool flagDestino = false;
+
+	unsigned long long idOrigem;
+	unsigned long long idDestino;
+	while (!(flagOrigem && flagDestino)){
+		string origem;
+		string destino;
+		cout<<"Where are you?"<<endl;
+		cout<<"Please insert your location"<<endl;
+
+		cin.ignore();
+		getline(cin, origem);
+		while (origem.size() == 0)
+		{
+			cin.ignore();
+			getline(cin, origem);
+		}
+
+		cout<<"Where do you want to go?"<<endl;
+		cout<<"Please insert your destination"<<endl;
+
+		cin.ignore();
+		getline(cin, destino);
+		while (destino.size() == 0){
+			cin.ignore();
+			getline(cin, destino);
+		}
+
+		idOrigem = graph->pesquisaExata(origem);
+		idDestino = graph->pesquisaExata(destino);
+
+		if (idOrigem != 0){
+			flagOrigem = true;
+		} else {
+			cerr << "Erro na introdução da origem!" << endl;
+		}
+
+		if (idDestino != 0){
+			flagDestino = true;
+		} else {
+			cerr << "Erro na introdução do destino!" << endl;
+		}
+	}
+
+	pathPreferencesMenu(idOrigem, idDestino);
+
+
+
+}
+
+/**
+ * This function prints the ByID menu
+ */
+void ByIDMenu()
+{
+
+	cout<<"Where are you?"<<endl;
+		cout<<"Please choose an ID"<<endl;
+
+		unsigned long long idOrigem;
+		cin>>idOrigem;
+		while (!checkIfNodeExists(idOrigem)){
+			cout<<"Please choose a valid ID"<<endl;
+			cin >>idOrigem;
+		}
+
+		cout<<"Where do you want to go?"<<endl;
+		cout<<"Please choose an ID"<<endl;
+
+		unsigned long long idDestino;
+		cin>>idDestino;
+		while (!checkIfNodeExists(idDestino) || (idDestino == idOrigem)){
+			cout<<"Please choose a valid ID"<<endl;
+			cin >>idDestino;
+		}
+
+		pathPreferencesMenu(idOrigem, idDestino);
+
+}
+
+/**
+*This function prints the program menu
+*/
+void mainMenu()
+{
+
+	bool file = false;
+	string fileA;
+	string fileB;
+	string fileC;
+
+	while(!file){
+		cout << "Select file A: " << endl;
+		cin >> fileA;
+		cout << "Select file B: " << endl;
+		cin >> fileB;
+		cout << "Select file C: " << endl;
+		cin >> fileC;
+
+		if (openFile(fileA) && openFile(fileB) && openFile(fileC)){
+			FILE_A = fileA;
+			FILE_B = fileB;
+			FILE_C = fileC;
+
+			file = true;
+		} else {
+			cerr << "Erro na introducao do nome dos ficheiros! (Press Enter to continue)" << endl;
+			cin.ignore();
+			cin.get();
+		}
+	}
+
+	cout << "Loading..."<< endl;
+
+	teste();
+
+	cout<<"  _____     _       ____  _                             "<<endl;
+	cout<<" |_   _| __(_)_ __ |  _ \\| | __ _ _ __  _ __   ___ _ __ "<<endl;
+	cout<<"   | || '__| | '_ \\| |_) | |/ _` | '_ \\| '_ \\ / _ \\ '__|"<<endl;
+	cout<<"   | || |  | | |_) |  __/| | (_| | | | | | | |  __/ |   "<<endl;
+	cout<<"   |_||_|  |_| .__/|_|   |_|\\__,_|_| |_|_| |_|\\___|_|   "<<endl;
+	cout<<"             |_|                                        "<<endl;
+
+
+	cout<< "Welcome! We will help to find your favorite way to get your destination!"<<endl;
+
+	while (true){
+
+	cout<<"Please choose an option!"<<endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   1. By ID                               |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   2. By Exact Search                     |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   3. By Approximate Search               |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   4. List of Stops                       |" << endl;
+	cout << "+------------------------------------------+" << endl;
+	cout << "|   0. Exit                                |" << endl;
+	cout << "+------------------------------------------+" << endl;
+
+	int option=0;
+	cout<<"option: ";
+	cin>>option;
+
+	while (cin.fail()){
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(),'\n');
+		cout <<"option: ";
+		cin >> option;
+		cin.get();
+		cin.get();
+		}
+
+	switch(option)
+	{
+	//By id
+	case 1:
+		ByIDMenu();
+		break;
+
+	//By Exact Search
+	case 2:
+		ByExactSearchMenu();
+		break;
+
+	//By Approximate Search
+	case 3:
+		ByApproximateSearchMenu();
+		break;
+
+	//listagem das stops
+	case 4:
 		graph->giveNameToAllNodes();
 		graph->printAllNodesNames();
 		cout << endl;
 		break;
-		}
+
+
+	//Exit
+	case 0:
+		printf("Bye Bye! \n");
+		return;
+		break;
 
 	cout <<endl;
 
 
 	}
+}
 }
 
 void teste(){
@@ -496,7 +644,7 @@ void teste(){
 int main() {
 	srand(time(NULL));
 
-	menu();
+	mainMenu();
 
 	getchar();
 	return 0;
