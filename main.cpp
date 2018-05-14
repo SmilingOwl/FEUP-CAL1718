@@ -396,6 +396,8 @@ void ByApproximateSearchMenu(){
 	while (!(flagOrigem && flagDestino)){
 		string origem;
 		string destino;
+
+		do {
 		cout<<"Where are you?"<<endl;
 		cout<<"Please insert your location"<<endl;
 
@@ -409,14 +411,13 @@ void ByApproximateSearchMenu(){
 
 		origens = graph->pesquisaAproximada(origem);
 
-		//while (graph->pesquisa)
+		} while (origens.size() == 0);
 
-		if(graph->pesquisaAproximada(origem).size() != 0){
-
-		}
+		//TODO Select option
 
 
 
+		do{
 		cout<<"Where do you want to go?"<<endl;
 		cout<<"Please insert your destination"<<endl;
 
@@ -427,8 +428,12 @@ void ByApproximateSearchMenu(){
 			getline(cin, destino);
 		}
 
-		idOrigem = graph->pesquisaExata(origem);
-		idDestino = graph->pesquisaExata(destino);
+		destinos = graph->pesquisaAproximada(destino);
+
+		}while(destinos.size() == 0);
+
+		//TODO Select option
+
 
 		if (idOrigem != 0){
 			flagOrigem = true;
