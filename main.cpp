@@ -411,9 +411,16 @@ void ByApproximateSearchMenu(){
 
 		origens = graph->pesquisaAproximada(origem);
 
+		if (origens.size() == 0){
+			cerr << "Location not found.";
+		}
+
 		} while (origens.size() == 0);
 
-		//TODO Select option
+		cout << "Select an option: "<<endl;
+		for (unsigned int i = 0; i < origens.size(); i++){
+			cout << i << ": " << graph->findVertex(origens.at(i))->getName() << endl;
+		}
 
 
 
@@ -429,6 +436,10 @@ void ByApproximateSearchMenu(){
 		}
 
 		destinos = graph->pesquisaAproximada(destino);
+
+		if (destinos.size() == 0){
+			cerr << "Destination not found.";
+		}
 
 		}while(destinos.size() == 0);
 

@@ -150,6 +150,9 @@ public:
 	void giveNameToAllNodes();
 	void printAllNodesNames();
 
+	vector<int> KPM_Table(string txt);
+	bool KPM_Matcher(string name, string txt);
+
 
 };
 
@@ -1360,12 +1363,107 @@ unsigned long long Graph::pesquisaExata(string txt){
 	return 0;
 }
 
+vector<int> Graph::KPM_Table(string txt){
+	//W
+	vector<int> T;
+	int pos = 1;
+	int cnd = 0;
+
+	T.push_back(-1);
+
+	while (pos < txt.length()){
+		if (txt[pos] == txt[cnd]){
+			T.at(pos) = T.at(cnd);
+			pos++;
+			cnd++;
+		} else {
+			T.at(pos) = cnd;
+
+			cnd = T.at(cnd);
+
+			while(cnd >= 0 && txt[pos] != txt[cnd]){
+				cnd = T.at(cnd);
+			}
+
+			pos++;
+			cnd++;
+		}
+	}
+
+	T.at(pos) = cnd;
+
+
+
+	return T;
+}
+
+bool Graph::KPM_Matcher(string name, string txt){
+	//S, W
+
+	int j = 0;
+	int k = 0;
+	int T[100];
+
+	// table
+
+	int pos = 1;
+	int cnd = 0;
+
+	T[0]= -1;
+
+	while (pos < txt.length()){
+		if (txt[pos] == txt[cnd]){
+			T[pos] = T[cnd];
+			pos++;
+			cnd++;
+		} else {
+			T[pos] = cnd;
+
+			cnd = T[cnd];
+
+			while(cnd >= 0 && txt[pos] != txt[cnd]){
+				cnd = T[cnd];
+			}
+
+			pos++;
+			cnd++;
+		}
+	}
+
+	T[pos] = cnd;
+
+
+
+	while (j < name.length()){
+		if (txt[k] == name[j]){
+			j++;
+			k++;
+			if (k == txt.length()){
+				return true;
+			}
+
+		} else {
+			k = T[k];
+			if (k < 0){
+				j++;
+				k++;
+			}
+		}
+	}
+
+
+	return false;
+}
+
 vector<unsigned long long> Graph::pesquisaAproximada(string txt){
 	vector <unsigned long long> resultado;
 
-
+	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
+		if (KPM_Matcher(this->vertexSet.at(i)->name,txt)){
+			resultado.push_back(this->vertexSet.at(i)->id);
+		}
+	}
 	return resultado;
-
 }
 
 void Graph::giveNameToAllNodes(){
