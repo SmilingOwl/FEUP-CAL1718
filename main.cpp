@@ -398,52 +398,85 @@ void ByApproximateSearchMenu(){
 		string destino;
 
 		do {
-		cout<<"Where are you?"<<endl;
-		cout<<"Please insert your location"<<endl;
+			cout<<"Where are you?"<<endl;
+			cout<<"Please insert your location"<<endl;
 
-		cin.ignore();
-		getline(cin, origem);
-		while (origem.size() == 0)
-		{
-			//cin.ignore();
+			cin.ignore();
 			getline(cin, origem);
-		}
+			while (origem.size() == 0)
+			{
+				//cin.ignore();
+				getline(cin, origem);
+			}
 
-		origens = graph->pesquisaAproximada(origem);
+			origens = graph->pesquisaAproximada(origem);
 
-		if (origens.size() == 0){
-			cerr << "Location not found.";
-		}
+			if (origens.size() == 0){
+				cerr << "Location not found.";
+			}
 
 		} while (origens.size() == 0);
 
 		cout << "Select an option: "<<endl;
 		for (unsigned int i = 0; i < origens.size(); i++){
-			cout << i << ": " << graph->findVertex(origens.at(i))->getName() << endl;
+			cout << (i+1) << ": " << graph->findVertex(origens.at(i))->getName() << endl;
 		}
+
+		int optionOrigin=0;
+		cout<<"option: ";
+		cin>>optionOrigin;
+
+		while (cin.fail() || optionOrigin > origens.size()){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			cout <<"option: ";
+			cin >> optionOrigin;
+			cin.get();
+			cin.get();
+		}
+
+		idOrigem = origens.at(optionOrigin - 1);
 
 
 
 		do{
-		cout<<"Where do you want to go?"<<endl;
-		cout<<"Please insert your destination"<<endl;
+			cout<<"Where do you want to go?"<<endl;
+			cout<<"Please insert your destination"<<endl;
 
-		//cin.ignore();
-		getline(cin, destino);
-		while (destino.size() == 0){
 			//cin.ignore();
 			getline(cin, destino);
-		}
+			while (destino.size() == 0){
+				//cin.ignore();
+				getline(cin, destino);
+			}
 
-		destinos = graph->pesquisaAproximada(destino);
+			destinos = graph->pesquisaAproximada(destino);
 
-		if (destinos.size() == 0){
-			cerr << "Destination not found.";
-		}
+			if (destinos.size() == 0){
+				cerr << "Destination not found.";
+			}
 
 		}while(destinos.size() == 0);
 
-		//TODO Select option
+		cout << "Select an option: "<<endl;
+		for (unsigned int i = 0; i < destinos.size(); i++){
+			cout << (i+1) << ": " << graph->findVertex(destinos.at(i))->getName() << endl;
+		}
+
+		int optionDestination=0;
+		cout<<"option: ";
+		cin>>optionDestination;
+
+		while (cin.fail() || optionDestination > destinos.size()){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			cout <<"option: ";
+			cin >> optionDestination;
+			cin.get();
+			cin.get();
+		}
+
+		idDestino = destinos.at(optionDestination - 1);
 
 
 		if (idOrigem != 0){
