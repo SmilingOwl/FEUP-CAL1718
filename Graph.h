@@ -146,8 +146,10 @@ public:
 	//parte 2
 
 	unsigned long long pesquisaExata(string txt);
+	vector<unsigned long long> pesquisaAproximada(string txt);
 	void giveNameToAllNodes();
 	void printAllNodesNames();
+
 
 };
 
@@ -1348,13 +1350,22 @@ void Graph::writeStreet(int id, string name){
 
 unsigned long long Graph::pesquisaExata(string txt){
 
-	for (int i = 0 ; i<this->vertexSet.size(); i++){
+	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
 		if (vertexSet.at(i)->name == txt && vertexSet.at(i)->vehicle == 0){
+			cout << i << " - name: " << vertexSet.at(i)->name << " / " << vertexSet.at(i)->vehicle <<endl;
 			return vertexSet.at(i)->id;
 		}
 	}
 
 	return 0;
+}
+
+vector<unsigned long long> Graph::pesquisaAproximada(string txt){
+	vector <unsigned long long> resultado;
+
+
+	return resultado;
+
 }
 
 void Graph::giveNameToAllNodes(){

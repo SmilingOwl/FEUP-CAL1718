@@ -385,9 +385,16 @@ void pathPreferencesMenu(unsigned long long idOrigem, unsigned long long idDesti
 
 
 }
-void ByApproximateSearchMenu()
-{
-	string origem;
+void ByApproximateSearchMenu(){
+	bool flagOrigem = false;
+	bool flagDestino = false;
+
+	unsigned long long idOrigem;
+	unsigned long long idDestino;
+	vector<unsigned long long> origens;
+	vector<unsigned long long> destinos;
+	while (!(flagOrigem && flagDestino)){
+		string origem;
 		string destino;
 		cout<<"Where are you?"<<endl;
 		cout<<"Please insert your location"<<endl;
@@ -396,22 +403,49 @@ void ByApproximateSearchMenu()
 		getline(cin, origem);
 		while (origem.size() == 0)
 		{
-			cin.ignore();
+			//cin.ignore();
 			getline(cin, origem);
 		}
+
+		origens = graph->pesquisaAproximada(origem);
+
+		//while (graph->pesquisa)
+
+		if(graph->pesquisaAproximada(origem).size() != 0){
+
+		}
+
+
 
 		cout<<"Where do you want to go?"<<endl;
 		cout<<"Please insert your destination"<<endl;
 
-		cin.ignore();
+		//cin.ignore();
+		getline(cin, destino);
+		while (destino.size() == 0){
+			//cin.ignore();
 			getline(cin, destino);
-			while (destino.size() == 0)
-			{
-				cin.ignore();
-				getline(cin, destino);
-			}
+		}
 
-			//PESQUISA APROXIMADA
+		idOrigem = graph->pesquisaExata(origem);
+		idDestino = graph->pesquisaExata(destino);
+
+		if (idOrigem != 0){
+			flagOrigem = true;
+		} else {
+			cerr << "Erro na introdução da origem!" << endl;
+		}
+
+		if (idDestino != 0){
+			flagDestino = true;
+		} else {
+			cerr << "Erro na introdução do destino!" << endl;
+		}
+	}
+
+	pathPreferencesMenu(idOrigem, idDestino);
+
+
 }
 
 /**
@@ -434,17 +468,18 @@ void ByExactSearchMenu()
 		getline(cin, origem);
 		while (origem.size() == 0)
 		{
-			cin.ignore();
+			//cin.ignore();
 			getline(cin, origem);
 		}
+
 
 		cout<<"Where do you want to go?"<<endl;
 		cout<<"Please insert your destination"<<endl;
 
-		cin.ignore();
+		//cin.ignore();
 		getline(cin, destino);
 		while (destino.size() == 0){
-			cin.ignore();
+			//cin.ignore();
 			getline(cin, destino);
 		}
 
@@ -532,9 +567,13 @@ void mainMenu()
 		}
 	}
 
+
 	cout << "Loading..."<< endl;
 
+
+
 	teste();
+	graph->giveNameToAllNodes();
 
 	cout<<"  _____     _       ____  _                             "<<endl;
 	cout<<" |_   _| __(_)_ __ |  _ \\| | __ _ _ __  _ __   ___ _ __ "<<endl;
@@ -593,7 +632,6 @@ void mainMenu()
 
 	//listagem das stops
 	case 4:
-		graph->giveNameToAllNodes();
 		graph->printAllNodesNames();
 		cout << endl;
 		break;
