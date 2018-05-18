@@ -11,6 +11,7 @@
 #include <limits>
 #include <cmath>
 #include <time.h>
+#include <algorithm>
 #include "MutablePriorityQueue.h"
 #include "graphviewer.h"
 #include "AuxiliarMethods.h"
@@ -145,13 +146,16 @@ public:
 
 	//parte 2
 
-	unsigned long long pesquisaExata(string txt);
+	vector<unsigned long long> pesquisaExata(string txt);
 	vector<unsigned long long> pesquisaAproximada(string txt);
 	void giveNameToAllNodes();
 	void printAllNodesNames();
 
 	vector<int> KPM_Table(string txt);
 	bool KPM_Matcher(string name, string txt);
+	int levenshteinDistance(const string source, const string target);
+	int numberOfWords(string txt);
+	vector<string> separatedWords(string txt);
 
 
 };
@@ -1351,16 +1355,51 @@ void Graph::writeStreet(int id, string name){
 
 //parte 2
 
-unsigned long long Graph::pesquisaExata(string txt){
+
+int Graph::levenshteinDistance(const string source, const string target){
+	const std::size_t len1 = source.size(), len2 = target.size();
+	std::vector<std::vector<unsigned int>> d(len1 + 1, std::vector<unsigned int>(len2 + 1));
+
+	d[0][0] = 0;
+	for(unsigned int i = 1; i <= len1; ++i) d[i][0] = i;
+	for(unsigned int i = 1; i <= len2; ++i) d[0][i] = i;
+
+	for(unsigned int i = 1; i <= len1; ++i)
+		for(unsigned int j = 1; j <= len2; ++j)
+                      d[i][j] = std::min({ d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (source[i - 1] == target[j - 1] ? 0 : 1) });
+	return d[len1][len2];
+}
+
+vector<unsigned long long> Graph::pesquisaAproximada(string txt){
+
+	vector <unsigned long long> resultado;
+
+	int numPalavrasNode = 0;
+	int numPalavrasTXT = numberOfWords(txt);
 
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
-		if (vertexSet.at(i)->name == txt && vertexSet.at(i)->vehicle == 0){
-			cout << i << " - name: " << vertexSet.at(i)->name << " / " << vertexSet.at(i)->vehicle <<endl;
-			return vertexSet.at(i)->id;
-		}
-	}
 
-	return 0;
+		numPalavrasNode = numberOfWords(this->vertexSet.at(i)->getName());
+
+		if (numPalavrasNode < 2 || numPalavrasTXT > 1){
+
+			if (levenshteinDistance(this->vertexSet.at(i)->name,txt) < 3){
+				resultado.push_back(this->vertexSet.at(i)->id);
+			}
+		} else {
+			vector<string> separatedVector = separatedWords(this->vertexSet.at(i)->name);
+
+			for (unsigned int n = 0; n < separatedVector.size(); n++){
+				if (levenshteinDistance(separatedVector.at(n),txt) < 2){
+					resultado.push_back(this->vertexSet.at(i)->id);
+					break;
+				}
+			}
+		}
+
+	}
+	return resultado;
+
 }
 
 vector<int> Graph::KPM_Table(string txt){
@@ -1455,7 +1494,7 @@ bool Graph::KPM_Matcher(string name, string txt){
 	return false;
 }
 
-vector<unsigned long long> Graph::pesquisaAproximada(string txt){
+vector<unsigned long long> Graph::pesquisaExata(string txt){
 	vector <unsigned long long> resultado;
 
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++){
@@ -1477,6 +1516,37 @@ void Graph::printAllNodesNames(){
 	for(unsigned int i = 0; i < vertexSet.size(); i++){
 		cout << i << ": " << vertexSet.at(i)->name << endl;
 	}
+}
+
+int Graph::numberOfWords(string txt){
+
+	    istringstream iss(txt);
+	    int i = 0;
+
+	    do
+	    {
+	        string subs;
+	        iss >> subs;
+	        i++;
+
+	    } while (iss);
+	    i--;
+	    return i;
+}
+
+vector<string> Graph::separatedWords(string txt){
+	    istringstream iss(txt);
+	    vector<string> result;
+
+	    do
+	    {
+	        string subs;
+	        iss >> subs;
+	        result.push_back(subs);
+
+	    } while (iss);
+
+	    return result;
 }
 
 

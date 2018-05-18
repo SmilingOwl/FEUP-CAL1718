@@ -500,40 +500,99 @@ void ByApproximateSearchMenu(){
 /**
  * This function prints the ExactSearch menu
  */
-void ByExactSearchMenu()
-{
+void ByExactSearchMenu(){
 	bool flagOrigem = false;
 	bool flagDestino = false;
 
 	unsigned long long idOrigem;
 	unsigned long long idDestino;
+	vector<unsigned long long> origens;
+	vector<unsigned long long> destinos;
 	while (!(flagOrigem && flagDestino)){
 		string origem;
 		string destino;
-		cout<<"Where are you?"<<endl;
-		cout<<"Please insert your location"<<endl;
 
-		cin.ignore();
-		getline(cin, origem);
-		while (origem.size() == 0)
-		{
-			//cin.ignore();
+		do {
+			cout<<"Where are you?"<<endl;
+			cout<<"Please insert your location"<<endl;
+
+			cin.ignore();
 			getline(cin, origem);
+			while (origem.size() == 0)
+			{
+				//cin.ignore();
+				getline(cin, origem);
+			}
+
+			origens = graph->pesquisaExata(origem);
+
+			if (origens.size() == 0){
+				cerr << "Location not found.";
+			}
+
+		} while (origens.size() == 0);
+
+		cout << "Select an option: "<<endl;
+		for (unsigned int i = 0; i < origens.size(); i++){
+			cout << (i+1) << ": " << graph->findVertex(origens.at(i))->getName() << endl;
 		}
 
+		int optionOrigin=0;
+		cout<<"option: ";
+		cin>>optionOrigin;
 
-		cout<<"Where do you want to go?"<<endl;
-		cout<<"Please insert your destination"<<endl;
+		while (cin.fail() || optionOrigin > origens.size()){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			cout <<"option: ";
+			cin >> optionOrigin;
+			cin.get();
+			cin.get();
+		}
 
-		//cin.ignore();
-		getline(cin, destino);
-		while (destino.size() == 0){
+		idOrigem = origens.at(optionOrigin - 1);
+
+
+
+		do{
+			cout<<"Where do you want to go?"<<endl;
+			cout<<"Please insert your destination"<<endl;
+
 			//cin.ignore();
 			getline(cin, destino);
+			while (destino.size() == 0){
+				//cin.ignore();
+				getline(cin, destino);
+			}
+
+			destinos = graph->pesquisaExata(destino);
+
+			if (destinos.size() == 0){
+				cerr << "Destination not found.";
+			}
+
+		}while(destinos.size() == 0);
+
+		cout << "Select an option: "<<endl;
+		for (unsigned int i = 0; i < destinos.size(); i++){
+			cout << (i+1) << ": " << graph->findVertex(destinos.at(i))->getName() << endl;
 		}
 
-		idOrigem = graph->pesquisaExata(origem);
-		idDestino = graph->pesquisaExata(destino);
+		int optionDestination=0;
+		cout<<"option: ";
+		cin>>optionDestination;
+
+		while (cin.fail() || optionDestination > destinos.size()){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			cout <<"option: ";
+			cin >> optionDestination;
+			cin.get();
+			cin.get();
+		}
+
+		idDestino = destinos.at(optionDestination - 1);
+
 
 		if (idOrigem != 0){
 			flagOrigem = true;
