@@ -409,7 +409,12 @@ void ByApproximateSearchMenu(){
 				getline(cin, origem);
 			}
 
+			clock_t start = clock();
 			origens = graph->pesquisaAproximada(origem);
+			clock_t finish = clock();
+			double timeDijkstra = double(finish-start) /CLOCKS_PER_SEC;
+
+			printf("Dijktra: %.6f seconds\n", timeDijkstra);
 
 			if (origens.size() == 0){
 				cerr << "Location not found.";
@@ -450,7 +455,12 @@ void ByApproximateSearchMenu(){
 				getline(cin, destino);
 			}
 
+			clock_t start = clock();
 			destinos = graph->pesquisaAproximada(destino);
+			clock_t finish = clock();
+			double timeDijkstra = double(finish-start) /CLOCKS_PER_SEC;
+
+			printf("Dijktra: %.6f seconds\n", timeDijkstra);
 
 			if (destinos.size() == 0){
 				cerr << "Destination not found.";
@@ -485,7 +495,7 @@ void ByApproximateSearchMenu(){
 			cerr << "Erro na introdução da origem!" << endl;
 		}
 
-		if (idDestino != 0){
+		if (idDestino != 0 && idOrigem != idDestino){
 			flagDestino = true;
 		} else {
 			cerr << "Erro na introdução do destino!" << endl;
@@ -524,7 +534,14 @@ void ByExactSearchMenu(){
 				getline(cin, origem);
 			}
 
+			clock_t start = clock();
 			origens = graph->pesquisaExata(origem);
+			clock_t finish = clock();
+			double timeDijkstra = double(finish-start) /CLOCKS_PER_SEC;
+
+			printf("Dijktra: %.6f seconds\n", timeDijkstra);
+
+
 
 			if (origens.size() == 0){
 				cerr << "Location not found.";
@@ -565,7 +582,12 @@ void ByExactSearchMenu(){
 				getline(cin, destino);
 			}
 
+			clock_t start = clock();
 			destinos = graph->pesquisaExata(destino);
+			clock_t finish = clock();
+			double timeDijkstra = double(finish-start) /CLOCKS_PER_SEC;
+
+			printf("Dijktra: %.6f seconds\n", timeDijkstra);
 
 			if (destinos.size() == 0){
 				cerr << "Destination not found.";
@@ -600,7 +622,7 @@ void ByExactSearchMenu(){
 			cerr << "Erro na introdução da origem!" << endl;
 		}
 
-		if (idDestino != 0){
+		if (idDestino != 0 && idOrigem != idDestino){
 			flagDestino = true;
 		} else {
 			cerr << "Erro na introdução do destino!" << endl;
